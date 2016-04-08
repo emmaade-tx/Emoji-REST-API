@@ -17,3 +17,12 @@ $container['logger'] = function ($c) {
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], Monolog\Logger::DEBUG));
     return $logger;
 };
+
+$container['EmojiController'] = function ($container) {
+	return new \Demo\EmojiController;
+};
+
+$container['AuthController'] = function ($container) {
+	return new \Demo\AuthController;
+};
+
