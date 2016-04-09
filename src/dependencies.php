@@ -26,3 +26,6 @@ $container['AuthController'] = function ($container) {
 	return new \Demo\AuthController;
 };
 
+$container['AuthMiddleware'] = function ($container) {
+	return new \Demo\Middleware\AuthMiddleware;
+};

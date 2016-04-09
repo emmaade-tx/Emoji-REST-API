@@ -14,7 +14,6 @@ class App
      * @var \Slim\App
      */
     protected $app;
-    protected $capsule;
 
     public function __construct()
     {
@@ -25,6 +24,7 @@ class App
         // Register routes
         require __DIR__.'/../src/routes.php';
         $capsule = new Capsule;
+
         $this->loadEnv();
         $this->app = $app;
         $this->capsule = $capsule;

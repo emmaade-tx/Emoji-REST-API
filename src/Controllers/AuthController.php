@@ -22,11 +22,24 @@ class AuthController
     public function login($request, $response)
     {
         $userData = $request->getParsedBody();
-        if (User::where('username', $userData['username'])->first() && User::where('password', $userData['password'])->first()) {
-            return $response->withJson(['token' => $this->generateToken($user->id)]);
+
+        $validateResponse = $this->validateUserData(['username', 'password'], $userData);
+
+        if (is_array($validateResponse)) {
+                return $response->withJson($validateResponse, 400);
         }
 
-        return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
+        $user = $this->authenticate($userData['username'], $userData['password']);
+
+        if(! $user) {
+             return $response->withJson(['message' => 'Username or Password field not valid.'], 400);   
+        }
+
+        $userInfo = ['id' => $user->id];
+        $token = $this->generateToken($userInfo);
+
+        return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
+       
     }
 
     /**
@@ -48,9 +61,10 @@ class AuthController
             'nbf'  => $timeIssued, //Not before time
             'exp'  => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
             'data' => [                  // Data related to the signer user
-                'userId'   => $userId, // userid from the users table
+            'userId'   => $userId, // userid from the users table
             ],
         ];
+
         return JWT::encode($token, $appSecret, $jwtAlgorithm);
     }
 
@@ -65,9 +79,11 @@ class AuthController
     public function register($request, $response)
     {
         $userData = $request->getParsedBody();
-        if ($this->validateUserData($userData)) {
-            return $response->withJson(['message' => 'Username, fullname or Password field not provided.'], 400);
+        $validateResponse = $this->validateUserData(['fullname', 'username', 'password'], $userData);
+        if (is_array($validateResponse)) {
+                return $response->withJson($validateResponse, 400);
         }
+
         if (User::where('username', $userData['username'])->first()) {
             return $response->withJson(['message' => 'Username already exist.'], 409);
         }
@@ -95,7 +111,6 @@ class AuthController
         return $response->withJson(['message' => 'Logout successful'], 200);
     }
 
-
     /**
      * Authenticate username and password against database.
      *
@@ -104,7 +119,7 @@ class AuthController
      *
      * @return bool
      */
-    public function userAuthenticate($username, $password)
+    public function authenticate($username, $password)
     {
         $user = User::where('username', $username)->get();
         if ($user->isEmpty()) {
@@ -114,52 +129,46 @@ class AuthController
         if (password_verify($password, $user->password)) {
             return $user;
         }
-
         return false;
     }
 
-    
     /**
      * Validate user data are correct.
      *
-     * @param array $userData
+     * @param $expectedFields
+     * @param $userData
      *
      * @return bool
      */
-    private function validateUserData($userData)
+    
+    public function validateUserData($expectedFields, $userData)
     {
-        return !$userData || !$this->keysExistAndNotEmptyString(['username', 'password', 'fullname'], $userData);
-    }
+        $tableFields = [];
+        $tableValues = [];
+        foreach ($userData as $key => $val) {
+            $tableFields[] = $key;
+            $tableValues[] = $val;
+        }
+        $result = array_diff($expectedFields, $tableFields);
+        
+        if (count($result) > 0) {
+             return ['message' => 'All fields must be provided.'];
+        }
+  
+        $tableValues = implode('', $tableValues);
 
-    /**
-     * Checks if all keys in an array are in another array and their values are not empty string.
-     *
-     * @param array $requiredStrings
-     * @param array $searchData
-     *
-     * @return bool
-     */
-    public function keysExistAndNotEmptyString($requiredStrings, $searchData)
-    {
-        foreach ($requiredStrings as $key => $value) {
-            if (!$this->keyExistAndNotEmptyString($value, $searchData)) {
-                return false;
+        if (empty($tableValues)) {
+
+            return ['message' => 'All fields are required'];
+        }
+
+        foreach ($userData as $key => $val) {
+            if (!in_array($key, $expectedFields)) {
+                 return ['message' => 'Unwanted fields must be removed'];
             }
         }
-        return true;
-    }
 
-    /**
-     * Checks if a key is in an array and the value of the key is not an empty string.
-     *
-     * @param array $key
-     * @param array $searchData
-     *
-     * @return bool
-     */
-    public function keyExistAndNotEmptyString($key, $searchData)
-    {
-        return isset($searchData[$key]) && !empty($searchData[$key]) && is_string($searchData[$key]) && trim($searchData[$key]);
+        return true;   
     }
 }
 
