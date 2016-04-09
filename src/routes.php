@@ -38,7 +38,7 @@ $app->post('/', function (Request $request, Response $response) {
 
 /*
 |--------------------------------------------------------------------------
-| This endpoint registers a new user
+| These endpoints authenticate the user: login, register and logout
 |
 | @param $request
 |
@@ -47,33 +47,13 @@ $app->post('/', function (Request $request, Response $response) {
 | @return json $response
 |--------------------------------------------------------------------------
 */
-$app->post('/auth/register', 'AuthController:register');
 
-/*
-|--------------------------------------------------------------------------
-| This endpoint authenticate the user
-|
-| @param $request
-|
-| @param $request
-|
-| @return json $response
-|--------------------------------------------------------------------------
-*/
-$app->post('/auth/login', 'AuthController:login');
-
-/*
-|--------------------------------------------------------------------------
-| This endpoint authenticate the user
-|
-| @param $request
-|
-| @param $request
-|
-| @return json $response
-|--------------------------------------------------------------------------
-*/
-$app->post('/auth/logout', 'AuthController:logout');
+$app->group('/auth', function () {
+    $this->post('/login', "AuthController:login");
+    $this->post('/register', "AuthController:register");
+    $this->post('/logout', "AuthController:logout")
+         ->add("AuthMiddleware");
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -129,7 +109,25 @@ $app->post('/emojis', 'EmojiController:CreateEmoji');
 | @return json $response
 |--------------------------------------------------------------------------
 */
-$app->put('/emojis/{id}', 'EmojiController:updateEmoji');
+$app->put('/emojis/{id}', 'EmojiController:updateEmojiByPut');
+
+/*
+|--------------------------------------------------------------------------
+| This verb patially updates an emoji
+|
+| @param $request
+|
+| @param $args
+|
+| @param $emoji
+|
+| @param $request
+|
+| @return json $response
+|--------------------------------------------------------------------------
+*/
+$app->patch('/emojis/{id}', 'EmojiController:updateEmojiByPatch');
+
 /*
 |--------------------------------------------------------------------------
 | This verb deletes an emoji

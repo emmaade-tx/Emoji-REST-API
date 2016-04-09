@@ -13,7 +13,7 @@ class Emoji extends Model
      */
     public function created_by()
     {
-        return $this->hasOne('Demo\User', 'id', 'created_by');
+        return $this->hasOne('Demo\User', 'id', 'created_by')->select('id');
     }
 
     /**
@@ -29,6 +29,7 @@ class Emoji extends Model
      */
     public function keywords()
     {
-        return $this->hasMany('Demo\Keyword')->select(['emoji_id', 'keyword_name']);
+        return $this->hasMany('Demo\Keyword')->select(['emoji_id']);
     }
+
 }

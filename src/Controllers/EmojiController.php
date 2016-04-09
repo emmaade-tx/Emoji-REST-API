@@ -2,20 +2,31 @@
 
 namespace Demo;
 
-use Illuminate\Database\Capsule\Manager as Capsule;
+
 use Firebase\JWT\JWT;
 use Carbon\Carbon;
 use Demo\AuthMiddleware;
 use Demo\Emoji;
 use Demo\Keyword;
 use Demo\User;
+use Demo\AuthController;
 use Demo\Category;
-use Exception;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Database\Capsule\Manager as Capsule;
+
 
 
 class EmojiController
 {
- 
+    public $authController;
+    public $app;
+
+    public function __construct()
+    {
+        $this->authController = new AuthController();
+        $this->app = new app();
+    }
 	/**
 	 * @route GET /emojis
 	 *
@@ -31,6 +42,7 @@ class EmojiController
 		$emoji = Emoji::with('keywords', 'category', 'created_by')->get();
 
         if (count($emoji) > 0) {
+    
             return $response->withJson($this->formatEmoji($emoji));
         }
 
@@ -68,6 +80,13 @@ class EmojiController
     public function CreateEmoji($request, $response, $requestParams)
     {
         $requestParams = $request->getParsedBody();
+
+        $validateResponse = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
+
+        if (is_array($validateResponse)) {
+                return $response->withJson($validateResponse, 400);
+        }
+
         $emoji = Emoji::create([
             'name'       => strtolower($requestParams['name']),
             'chars'      => $requestParams['chars'],
@@ -77,10 +96,8 @@ class EmojiController
             'created_by' => $this->getUserId($request, $response),
         ]);
 
-        if ($emoji->id) {
-            $createdKeyword = $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
-            return $response->withJson($emoji->toArray(), 201);
-        }
+        $createdKeyword = $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
+        return $response->withJson($emoji->toArray(), 201);
     }
 
      /**
@@ -92,21 +109,63 @@ class EmojiController
      *
      * @return json $response
      */
-    public function updateEmoji($emoji, $response, $updateParams)
+    public function updateEmojiByPatch($request, $response, $args)
     {
-    	$user = $request->getAttribute('user');
-        $emoji = $user->emoji()->find($args['id']);
-        if (!$emoji) {
-            $emoji = Emoji::find($args['id']);
-            if (!$emoji) {
-                return $this->create($request, $response, $args);
-            }
+    	$updateParams = $request->getParsedBody();
 
-            return $response->withJson(['message' => 'Access denied, you are not the creator of this Emoji.'], 404);
+        $validateResponse = $this->authController->validateUserData(['name'], $updateParams);
+
+        if (is_array($validateResponse)) {
+                return $response->withJson($validateResponse, 400);
         }
 
-        $emoji->update($request->getParsedBody());
-        return $response->withJson(['message' => 'Emoji updated successfully.'], 200);
+        $emoji = Emoji::find($args['id']);
+        if (count($emoji) < 1) {
+            return $response->withJson(['message' => 'No record to update because the id supplied is invalid'], 404);
+        }
+
+        if (is_null($this->getTheOwner($args, $request, $response)->first())) {
+            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator',], 401);
+        }
+
+        Emoji::where('id', '=', $args['id'])
+        ->update(array('name' => strtolower($updateParams['name']), 'updated_at' => Carbon::now()->toDateTimeString()));
+
+        return $response->withJson($emoji->toArray(), 200);
+    }
+
+    /**
+     * This method updates an emoji.
+     *
+     * @param $emoji
+     * @param $response
+     * @param $updateParams
+     *
+     * @return json $response
+     */
+    public function updateEmojiByPut($request, $response, $args)
+    {
+        $updateParams = $request->getParsedBody();
+
+        $validateResponse = $this->authController->validateUserData(['name', 'chars', 'category'], $updateParams);
+
+        if (is_array($validateResponse)) {
+                return $response->withJson($validateResponse, 400);
+        }
+
+        $emoji = Emoji::find($args['id']);
+        if (count($emoji) < 1) {
+            return $response->withJson(['message' => 'No record to update because the id supplied is invalid'], 404);
+        }
+
+        if (is_null($this->getTheOwner($args, $request, $response)->first())) {
+            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator',], 401);
+        }
+            
+        Emoji::where('id', '=', $args['id'])
+        ->update(array('name' => strtolower($updateParams['name']), 'chars' => $updateParams['chars'], 'category' => $updateParams['category'], 'updated_at' => Carbon::now()->toDateTimeString()));
+
+            return $response->withJson($emoji, 200);
     }
 
     /**
@@ -120,42 +179,18 @@ class EmojiController
      */
     public function deleteEmoji($request, $response, $args)
     {
-        $user = $request->getAttribute('user');
-        $emoji = $user->emojis()->find($args['id']);
-        if (!$emoji) {
-             return $response->withJson(['message' => 'Access denied, you are not the creator of this Emoji.'], 404);
+        
+        $emoji = Emoji::find($args['id']);
+        if (count($emoji) < 1) {
+                return $response->withJson(['message' => 'No record to delete because the id supplied is invalid'], 404);
         }
 
-        $emoji->delete();
+        if (is_null($this->getTheOwner($args, $request, $response)->first())) {
+            return $response->withJson(['message' => 'Emoji cannot be deleted because you are not the creator',], 401);
+        }
+
+        $emoji->where('id', '=', $args['id'])->delete();
         return $response->withJson(['message' => 'Emoji successfully deleted.'], 200);
-    }
-
-    /**
-     * Search for emojis.
-     *
-     * @param Slim\Http\Request  $request
-     * @param Slim\Http\Response $response
-     * @param array              $args
-     *
-     * @return Slim\Http\Response
-     */
-    public function searchEmoji($request, $response, $args)
-    {
-        switch ($field) {
-		    case "name":
-		        $result = Emoji::searchByName($searchValue)->get();
-		        break;
-
-		    case "category":
-		        $result = Emoji::searchByCategoryName($searchValue)->get();
-		        break;
-
-		    case "created_by":
-		        $result = Emoji::searchByCreatorName($searchValue)->get();
-		        break;
-		}
-
-        return $response->withJson($result);
     }
 
     /**
@@ -168,37 +203,25 @@ class EmojiController
      */
     public function getUserId($request, $response)
     {
-    	// $appSecret = getenv('APP_SECRET');
-     //    $jwtAlgorithm = getenv('JWT_ALGORITHM');
-     //    $timeIssued = time();
-     //    $tokenId = base64_encode(getenv('TOKENID'));
-     //    $token = [
-     //        'iss'  => 'http://suyabay-staging.herokuapp.com/',
-     //        'iat'  => $timeIssued,   // Issued at: time when the token was generated
-     //        'jti'  => $tokenId,          // Json Token Id: an unique identifier for the token
-     //        'nbf'  => $timeIssued, //Not before time
-     //        'exp'  => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
-     //        'data' => [                  // Data related to the signer user
-     //        ],
-     //    ];
-        
-     //    return JWT::encode($token, $appSecret, $jwtAlgorithm);
+        $jwtoken = $request->getHeader('HTTP_AUTHORIZATION');
 
-        $userJwt = new AuthMiddleware();
-    	$userJwt = $this->getUserToken($request);
-        $jwtToken = JWT::decode($userJwt, getenv('APP_SECRET'), [getenv('JWT_ALGORITHM')]);
+        try {
+            if (isset($jwtoken)) {
 
-        if (isset($jwtoken)) {
-            $secretKey = base64_decode(getenv('secret'));
-            $jwt = json_decode($jwtoken[0], true);
-            $decodedToken = JWT::decode($jwt['jwt'], $secretKey, ['HS512']);
-            $tokenInfo = (array) $decodedToken;
-            $userInfo = (array) $tokenInfo['dat'];
+                    $secretKey = getenv('APP_SECRET');
+                    
+                    $jwt = $jwtoken[0];
 
-            return $userInfo['id'];
-        } 
+                    $decodedToken = JWT::decode($jwt, $secretKey, ['HS256']);
 
-        return $response->withJson(['status' => $e->getMessage()], 401);
+                    $tokenInfo = (array) $decodedToken;
+                    $userInfo = (array) $tokenInfo['data'];
+
+                    return $userInfo['id'];
+            }
+        } catch (Exception $e) {
+            return $response->withJson(['status' => $e->getMessage()], 401);
+       }
     }
 
     /**
@@ -208,16 +231,25 @@ class EmojiController
      *
      * @return void
      */
-    private function formatEmoji($emojis)
+    public function formatEmoji($emojis)
     {
         $emojis = $emojis->toArray();
         foreach ($emojis as $key => &$value) {
             $value['keywords'] = array_map(function ($arr) { return $arr['name']; }, $value['keywords']);
             $value['category'] = $value['category']['category_name'];
-            $value['created_by'] = $value['created_by']['username'];
+            $value['created_by'] = $value['created_by']['id'];
         }
 
         return $emojis;
+    }
+
+    /**
+     * This method solves for rightful of a record
+     */
+    public function getTheOwner($args, $request, $response)
+    {
+        return Capsule::table('emojis')->where('id', '=', $args['id'])
+        ->where('created_by', '=', $this->getUserId($request, $response));
     }
 
     /**
@@ -234,11 +266,13 @@ class EmojiController
         if ($keywords) {
             $splittedKeywords = explode(',', $keywords);
             $created_at = Carbon::now()->toDateTimeString();
+            $updated_at = Carbon::now()->toDateTimeString();
             foreach ($splittedKeywords as $keyword) {
                 $emojiKeyword = Keyword::create([
                         'emoji_id'     => $emoji_id,
                         'keyword_name' => $keyword,
                         'created_at'   => $created_at,
+                        'updated_at'   => $updated_at,
                 ]);
             }
         }
