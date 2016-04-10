@@ -220,7 +220,7 @@ class EmojiController
                     return $userInfo['id'];
             }
         } catch (Exception $e) {
-            return $response->withJson(['status' => $e->getMessage()], 401);
+            return $response->withJson(['status: fail, msg: Unauthorized']);
        }
     }
 
