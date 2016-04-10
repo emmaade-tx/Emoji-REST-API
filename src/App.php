@@ -4,7 +4,6 @@ namespace Demo;
 
 use Dotenv\Dotenv;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 
 class App
 {
@@ -15,7 +14,7 @@ class App
      */
     protected $app;
 
-    public function __construct()
+    public function __construct($path = null)
     {
         $settings = require __DIR__.'/../src/settings.php';
         $app = new \Slim\App($settings);
@@ -23,14 +22,13 @@ class App
         require __DIR__.'/../src/dependencies.php';
         // Register routes
         require __DIR__.'/../src/routes.php';
-        $capsule = new Capsule;
+        $capsule = new Capsule();
 
-        $this->loadEnv();
+        $this->loadEnv($path);
         $this->app = $app;
         $this->capsule = $capsule;
         $this->setUpDatabaseManager();
     }
-
 
     /**
      * Setup Eloquent ORM.
@@ -55,12 +53,13 @@ class App
     /**
      * Load Dotenv to grant getenv() access to environment variables in .env file.
      */
-    public function loadEnv()
+    public function loadEnv($path = null)
     {
-        $dotenv = new Dotenv(__DIR__.'/../');
+        $envPath = $path == null ? __DIR__.'/../' : $path;
+        $dotenv = new Dotenv($envPath);
         $dotenv->load();
     }
-   
+
     /**
      * Get an instance of the application.
      *

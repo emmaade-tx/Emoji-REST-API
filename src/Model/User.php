@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Demo;
 
@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-	 protected $fillable = ['fullname', 'username', 'password', 'created_at', 'updated_at'];
+    protected $fillable = ['fullname', 'username', 'password', 'created_at', 'updated_at'];
 
-	/**
+    /**
      * Get creator of an emoji.
      */
     public function emoji()

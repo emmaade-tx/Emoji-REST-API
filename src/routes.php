@@ -2,9 +2,9 @@
 
 namespace Demo;
 
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\ResponseInterface as Response;
 use Demo\Middleware\AuthMiddleware;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,10 +49,10 @@ $app->post('/', function (Request $request, Response $response) {
 */
 
 $app->group('/auth', function () {
-    $this->post('/login', "AuthController:login");
-    $this->post('/register', "AuthController:register");
-    $this->post('/logout', "AuthController:logout")
-         ->add("AuthMiddleware");
+    $this->post('/login', 'AuthController:login');
+    $this->post('/register', 'AuthController:register');
+    $this->post('/logout', 'AuthController:logout')
+         ->add('AuthMiddleware');
 });
 
 /*
@@ -142,8 +142,3 @@ $app->patch('/emojis/{id}', 'EmojiController:updateEmojiByPatch');
 |--------------------------------------------------------------------------
 */
 $app->delete('/emojis/{id}', 'EmojiController:deleteEmoji');
-
-
-
-
-
