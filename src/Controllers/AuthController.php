@@ -32,7 +32,7 @@ class AuthController
         if (!$user) {
             return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
         }
-       
+
         $token = $this->generateToken($user->Id);
 
         return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
@@ -60,7 +60,7 @@ class AuthController
             'userId'   => $userId, // userid from the users table
             ],
         ];
-    
+
         return JWT::encode($token, $appSecret, $jwtAlgorithm);
     }
 
@@ -125,7 +125,7 @@ class AuthController
         }
 
         $user = $user->first();
-        
+
         if (password_verify($password, $user->password)) {
             return $user;
         }
@@ -146,7 +146,7 @@ class AuthController
         $tableFields = [];
         $tableValues = [];
 
-       foreach ($userData as $key => $val) {
+        foreach ($userData as $key => $val) {
             $tableFields[] = $key;
             $tableValues[] = $val;
         }
