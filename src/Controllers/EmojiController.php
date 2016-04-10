@@ -3,7 +3,8 @@
 namespace Demo;
 
 use Carbon\Carbon;
-use Firebase\JWT\JWT;use Illuminate\Database\Capsule\Manager as Capsule;
+use Firebase\JWT\JWT;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class EmojiController

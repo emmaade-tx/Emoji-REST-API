@@ -22,7 +22,6 @@ class AuthMiddleware
 
         try {
             if (is_array($jwtoken) && !empty($jwtoken)) {
-
                 $secretKey = getenv('APP_SECRET');
                 $jwt = $jwtoken[0];
                 $decodedToken = JWT::decode($jwt, $secretKey, ['HS256']);
