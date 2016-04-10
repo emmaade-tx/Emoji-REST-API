@@ -76,6 +76,11 @@ class EmojiController
             return $response->withJson($validateResponse, 400);
         }
 
+        if (empty($requestParams['name']) || empty($requestParams['chars']) || empty($requestParams['category']) || empty($requestParams['keywords'])) {
+
+            return $response->withJson(['message' => 'All fields must be provided.'], 401);
+        }
+
         $emoji = Emoji::create([
             'name'       => strtolower($requestParams['name']),
             'chars'      => $requestParams['chars'],
@@ -86,6 +91,7 @@ class EmojiController
         ]);
 
         $createdKeyword = $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
+        //$createdCategories = $this->createEmojiCategories($emojiCategory->id, $requestParams['category_name']);
 
         return $response->withJson($emoji->toArray(), 201);
     }
@@ -182,6 +188,21 @@ class EmojiController
 
         return $response->withJson(['message' => 'Emoji successfully deleted.'], 200);
     }
+
+    /**
+     * This method checks for duplicate.
+     *
+     * @param Slim\Http\Request  $request
+     * @param Slim\Http\Response $response
+     * @param array              $args
+     *
+     * @return Slim\Http\Response
+     */
+    public function checkDuplicateEmoji($ExistedField, $userData)
+    {
+
+    }
+
 
     /**
      * This method authenticate and return user id.
