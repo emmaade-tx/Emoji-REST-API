@@ -3,7 +3,8 @@
 namespace Demo;
 
 use Carbon\Carbon;
-use Firebase\JWT\JWT;use Illuminate\Database\Capsule\Manager as Capsule;
+use Firebase\JWT\JWT;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class EmojiController
@@ -77,7 +78,6 @@ class EmojiController
         }
 
         if (empty($requestParams['name']) || empty($requestParams['chars']) || empty($requestParams['category']) || empty($requestParams['keywords'])) {
-
             return $response->withJson(['message' => 'All fields must be provided.'], 401);
         }
 
@@ -200,9 +200,7 @@ class EmojiController
      */
     public function checkDuplicateEmoji($ExistedField, $userData)
     {
-
     }
-
 
     /**
      * This method authenticate and return user id.
