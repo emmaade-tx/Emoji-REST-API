@@ -1,9 +1,20 @@
 <?php
 
+/**
+ * @author: Raimi Ademola <ademola.raimi@andela.com>
+ * @copyright: 2016 Andela
+ */
+
+/**
+ * @author: Raimi Ademola <ademola.raimi@andela.com>
+ * @copyright: 2016 Andela
+ */
+
 namespace Demo;
 
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
+use Exception;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -30,7 +41,7 @@ class EmojiController
      */
     public function getAllEmojis($request, $response, $args)
     {
-        $emoji = Emoji::with('keywords', 'category', 'created_by')->get();
+        $emoji = Emoji::with('keywords', 'created_by')->get();
 
         if (count($emoji) > 0) {
             return $response->withJson($emoji);
@@ -50,7 +61,7 @@ class EmojiController
      */
     public function getSingleEmoji($request, $response, $args)
     {
-        $emoji = Emoji::with('keywords', 'category', 'created_by')->find($args['id']);
+        $emoji = Emoji::with('keywords', 'created_by')->find($args['id']);
         if (count($emoji) < 1) {
             return $response->withJson(['message' => 'The requested Emoji is not found.'], 404);
         }
@@ -82,6 +93,10 @@ class EmojiController
             return $response->withJson(['message' => 'All fields must be provided.'], 401);
         }
 
+        if (Capsule::table('emojis')->where('name', '=', strtolower($requestParams['name']))->get() || Capsule::table('emojis')->where('chars', '=', $requestParams['chars'])) {
+             return $response->withJson(['message' => 'The emoji already exist in the database.'], 401);
+        }
+
         $emoji = Emoji::create([
             'name'       => strtolower($requestParams['name']),
             'chars'      => $requestParams['chars'],
@@ -92,7 +107,6 @@ class EmojiController
         ]);
 
         $createdKeyword = $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
-        //$createdCategories = $this->createEmojiCategories($category->id, $requestParams['category']);
 
         return $response->withJson($emoji->toArray(), 201);
     }
@@ -271,28 +285,4 @@ class EmojiController
 
         return $emojiKeyword->id;
     }
-
-    // /**
-    //  * This method creates emoji categories.
-    //  *
-    //  * @param $request
-    //  * @param $response
-    //  * @param $args
-    //  *
-    //  * @return $id
-    //  */
-    // public function createEmojiCategories($category_name, $category)
-    // {
-    //     if ($category) {  
-    //         $created_at = Carbon::now()->toDateTimeString();
-    //         $updated_at = Carbon::now()->toDateTimeString();
-    //         $category = Category::create([
-    //             'category_name' => $category_name,
-    //             'created_at'    => $created_at,
-    //             'updated_at'    => $updated_at,
-    //         ]);
-    //     }
-
-    //     return $category->id;
-    // }
 }

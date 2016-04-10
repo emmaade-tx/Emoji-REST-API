@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @author: Raimi Ademola <ademola.raimi@andela.com>
+ * @copyright: 2016 Andela
+ */
+
 namespace Demo;
 
 use Illuminate\Database\Eloquent\Model;
@@ -14,14 +19,6 @@ class Emoji extends Model
     public function created_by()
     {
         return $this->hasOne('Demo\User', 'id', 'created_by')->select('id');
-    }
-
-    /**
-     * Get emoji category.
-     */
-    public function category()
-    {
-        return $this->hasOne('Demo\Category', 'id', 'category')->select('id', 'category_name');
     }
 
     /**
