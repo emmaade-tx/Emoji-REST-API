@@ -29,6 +29,6 @@ class Emoji extends Model
      */
     public function keywords()
     {
-        return $this->hasMany('Demo\Keyword')->select(['emoji_id']);
+        return $this->hasMany('Demo\Keyword', 'emoji_id', 'Id')->select(['emoji_id', 'keyword_name']);
     }
 }

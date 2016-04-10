@@ -30,5 +30,5 @@ $container['AuthController'] = function ($container) {
 };
 
 $container['AuthMiddleware'] = function ($container) {
-    return new \Demo\Middleware\AuthMiddleware();
+    return new \Demo\AuthMiddleware();
 };
