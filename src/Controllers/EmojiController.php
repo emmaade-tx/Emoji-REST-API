@@ -92,7 +92,7 @@ class EmojiController
         ]);
 
         $createdKeyword = $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
-        //$createdCategories = $this->createEmojiCategories($emojiCategory->id, $requestParams['category_name']);
+        //$createdCategories = $this->createEmojiCategories($category->id, $requestParams['category']);
 
         return $response->withJson($emoji->toArray(), 201);
     }
@@ -271,4 +271,28 @@ class EmojiController
 
         return $emojiKeyword->id;
     }
+
+    // /**
+    //  * This method creates emoji categories.
+    //  *
+    //  * @param $request
+    //  * @param $response
+    //  * @param $args
+    //  *
+    //  * @return $id
+    //  */
+    // public function createEmojiCategories($category_name, $category)
+    // {
+    //     if ($category) {  
+    //         $created_at = Carbon::now()->toDateTimeString();
+    //         $updated_at = Carbon::now()->toDateTimeString();
+    //         $category = Category::create([
+    //             'category_name' => $category_name,
+    //             'created_at'    => $created_at,
+    //             'updated_at'    => $updated_at,
+    //         ]);
+    //     }
+
+    //     return $category->id;
+    // }
 }
