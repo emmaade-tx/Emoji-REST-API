@@ -1,8 +1,13 @@
 <?php
 
+/**
+ * @author: Raimi Ademola <ademola.raimi@andela.com>
+ * @copyright: 2016 Andela
+ */
+
 namespace Demo;
 
-use Demo\Middleware\AuthMiddleware;
+use Demo\AuthMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -38,22 +43,33 @@ $app->post('/', function (Request $request, Response $response) {
 
 /*
 |--------------------------------------------------------------------------
-| These endpoints authenticate the user: login, register and logout
+| These endpoints groups route that requires Middleware
 |
 | @param $request
 |
 | @param $request
 |
-| @return json $response
 |--------------------------------------------------------------------------
 */
+$app->group('/', function () {
+    $this->post('emojis', 'EmojiController:CreateEmoji');
+    $this->patch('emojis/{id}', 'EmojiController:updateEmojiByPatch');
+    $this->put('emojis/{id}', 'EmojiController:updateEmojiByPut');
+    $this->delete('emojis/{id}', 'EmojiController:deleteEmoji');
+})->add('AuthMiddleware');
 
-$app->group('/auth', function () {
-    $this->post('/login', 'AuthController:login');
-    $this->post('/register', 'AuthController:register');
-    $this->post('/logout', 'AuthController:logout')
-         ->add('AuthMiddleware');
-});
+
+/*
+|--------------------------------------------------------------------------
+| These verb logs out a user
+|
+| @param $request
+|
+| @param $request
+|
+|--------------------------------------------------------------------------
+*/
+$app->get('/auth/logout', 'AuthController:logout')->add('AuthMiddleware');
 
 /*
 |--------------------------------------------------------------------------
@@ -63,7 +79,6 @@ $app->group('/auth', function () {
 |
 | @param $request
 |
-| @return json $response
 |--------------------------------------------------------------------------
 */
 $app->get('/emojis', 'EmojiController:getAllEmojis');
@@ -76,27 +91,25 @@ $app->get('/emojis', 'EmojiController:getAllEmojis');
 |
 | @param $request
 |
-| @return json $response
 |--------------------------------------------------------------------------
 */
 $app->get('/emojis/{id}', 'EmojiController:getSingleEmoji');
 
 /*
 |--------------------------------------------------------------------------
-| This verb creates a new emoji
+| This verb authenticate an existing user
 |
 | @param $request
 |
 | @param $request
 |
-| @return json $response
 |--------------------------------------------------------------------------
 */
-$app->post('/emojis', 'EmojiController:CreateEmoji');
+$app->post('/auth/login', 'AuthController:login');
 
 /*
 |--------------------------------------------------------------------------
-| This verb updates an emoji
+| This verb registers a new user
 |
 | @param $request
 |
@@ -106,39 +119,6 @@ $app->post('/emojis', 'EmojiController:CreateEmoji');
 |
 | @param $request
 |
-| @return json $response
 |--------------------------------------------------------------------------
 */
-$app->put('/emojis/{id}', 'EmojiController:updateEmojiByPut');
-
-/*
-|--------------------------------------------------------------------------
-| This verb patially updates an emoji
-|
-| @param $request
-|
-| @param $args
-|
-| @param $emoji
-|
-| @param $request
-|
-| @return json $response
-|--------------------------------------------------------------------------
-*/
-$app->patch('/emojis/{id}', 'EmojiController:updateEmojiByPatch');
-
-/*
-|--------------------------------------------------------------------------
-| This verb deletes an emoji
-|
-| @param $request
-|
-| @param $args
-|
-| @param $request
-|
-| @return json $response
-|--------------------------------------------------------------------------
-*/
-$app->delete('/emojis/{id}', 'EmojiController:deleteEmoji');
+$app->post('/auth/register', 'AuthController:register');
