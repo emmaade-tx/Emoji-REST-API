@@ -4,10 +4,8 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
 namespace Demo;
 
-use Demo\AuthMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -57,7 +55,6 @@ $app->group('/', function () {
     $this->put('emojis/{id}', 'EmojiController:updateEmojiByPut');
     $this->delete('emojis/{id}', 'EmojiController:deleteEmoji');
 })->add('AuthMiddleware');
-
 
 /*
 |--------------------------------------------------------------------------
