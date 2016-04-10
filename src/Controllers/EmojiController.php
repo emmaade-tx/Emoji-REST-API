@@ -9,12 +9,11 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
 namespace Demo;
 
 use Carbon\Carbon;
-use Firebase\JWT\JWT;
 use Exception;
+use Firebase\JWT\JWT;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -89,12 +88,11 @@ class EmojiController
         }
 
         if (empty($requestParams['name']) || empty($requestParams['chars']) || empty($requestParams['category']) || empty($requestParams['keywords'])) {
-
             return $response->withJson(['message' => 'All fields must be provided.'], 401);
         }
 
         if (Capsule::table('emojis')->where('name', '=', strtolower($requestParams['name']))->get() || Capsule::table('emojis')->where('chars', '=', $requestParams['chars'])) {
-             return $response->withJson(['message' => 'The emoji already exist in the database.'], 401);
+            return $response->withJson(['message' => 'The emoji already exist in the database.'], 401);
         }
 
         $emoji = Emoji::create([
@@ -215,9 +213,7 @@ class EmojiController
      */
     public function checkDuplicateEmoji($ExistedField, $userData)
     {
-
     }
-
 
     /**
      * This method authenticate and return user id.
