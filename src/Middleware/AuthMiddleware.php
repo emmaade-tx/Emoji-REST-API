@@ -31,7 +31,7 @@ class AuthMiddleware
                     return $userInfo['id'];
             }
         }catch (Exception $e) {
-            return $response->withJson(['status' : 'fail' ,'msg':'Unauthorized']);
+            return $response->withJson(['status: fail, msg: Unauthorized']);
         }
         
         return $response->withJson(['message' => 'User unauthorized due to invalid token'], 401);
