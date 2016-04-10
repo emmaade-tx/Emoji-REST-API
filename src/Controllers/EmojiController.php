@@ -1,21 +1,10 @@
-<?php 
+<?php
 
 namespace Demo;
 
-
-use Firebase\JWT\JWT;
 use Carbon\Carbon;
-use Demo\AuthMiddleware;
-use Demo\Emoji;
-use Demo\Keyword;
-use Demo\User;
-use Demo\AuthController;
-use Demo\Category;
+use Firebase\JWT\JWT;use Illuminate\Database\Capsule\Manager as Capsule;
 use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Illuminate\Database\Capsule\Manager as Capsule;
-
-
 
 class EmojiController
 {
@@ -27,29 +16,29 @@ class EmojiController
         $this->authController = new AuthController();
         $this->app = new app();
     }
-	/**
-	 * @route GET /emojis
-	 *
-	 * @method  emojis (GET) Return all records of emojis from database.
-	 *
-	 * @requiredParams none
-	 * @queryParams none
-	 *
-	 * @return JSON     List of all emojis
-	 */
-	public function getAllEmojis($request, $response, $args)
-	{
-		$emoji = Emoji::with('keywords', 'category', 'created_by')->get();
+
+    /**
+     * @route GET /emojis
+     *
+     * @method  emojis (GET) Return all records of emojis from database.
+     *
+     * @requiredParams none
+     * @queryParams none
+     *
+     * @return JSON List of all emojis
+     */
+    public function getAllEmojis($request, $response, $args)
+    {
+        $emoji = Emoji::with('keywords', 'category', 'created_by')->get();
 
         if (count($emoji) > 0) {
-    
             return $response->withJson($this->formatEmoji($emoji));
         }
 
         return $response->withJson(['message' => 'Oops, No Emoji to display'], 404);
-	}
+    }
 
-	/**
+    /**
      * Get a single emoji.
      *
      * @param Slim\Http\Request  $request
@@ -84,7 +73,7 @@ class EmojiController
         $validateResponse = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
 
         if (is_array($validateResponse)) {
-                return $response->withJson($validateResponse, 400);
+            return $response->withJson($validateResponse, 400);
         }
 
         $emoji = Emoji::create([
@@ -92,15 +81,16 @@ class EmojiController
             'chars'      => $requestParams['chars'],
             'category'   => $requestParams['category'],
             'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),        
+            'updated_at' => Carbon::now()->toDateTimeString(),
             'created_by' => $this->getUserId($request, $response),
         ]);
 
         $createdKeyword = $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
+
         return $response->withJson($emoji->toArray(), 201);
     }
 
-     /**
+    /**
      * This method updates an emoji.
      *
      * @param $emoji
@@ -111,12 +101,12 @@ class EmojiController
      */
     public function updateEmojiByPatch($request, $response, $args)
     {
-    	$updateParams = $request->getParsedBody();
+        $updateParams = $request->getParsedBody();
 
         $validateResponse = $this->authController->validateUserData(['name'], $updateParams);
 
         if (is_array($validateResponse)) {
-                return $response->withJson($validateResponse, 400);
+            return $response->withJson($validateResponse, 400);
         }
 
         $emoji = Emoji::find($args['id']);
@@ -125,11 +115,11 @@ class EmojiController
         }
 
         if (is_null($this->getTheOwner($args, $request, $response)->first())) {
-            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator',], 401);
+            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator'], 401);
         }
 
         Emoji::where('id', '=', $args['id'])
-        ->update(array('name' => strtolower($updateParams['name']), 'updated_at' => Carbon::now()->toDateTimeString()));
+        ->update(['name' => strtolower($updateParams['name']), 'updated_at' => Carbon::now()->toDateTimeString()]);
 
         return $response->withJson($emoji->toArray(), 200);
     }
@@ -150,7 +140,7 @@ class EmojiController
         $validateResponse = $this->authController->validateUserData(['name', 'chars', 'category'], $updateParams);
 
         if (is_array($validateResponse)) {
-                return $response->withJson($validateResponse, 400);
+            return $response->withJson($validateResponse, 400);
         }
 
         $emoji = Emoji::find($args['id']);
@@ -159,13 +149,13 @@ class EmojiController
         }
 
         if (is_null($this->getTheOwner($args, $request, $response)->first())) {
-            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator',], 401);
+            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator'], 401);
         }
-            
-        Emoji::where('id', '=', $args['id'])
-        ->update(array('name' => strtolower($updateParams['name']), 'chars' => $updateParams['chars'], 'category' => $updateParams['category'], 'updated_at' => Carbon::now()->toDateTimeString()));
 
-            return $response->withJson($emoji, 200);
+        Emoji::where('id', '=', $args['id'])
+        ->update(['name' => strtolower($updateParams['name']), 'chars' => $updateParams['chars'], 'category' => $updateParams['category'], 'updated_at' => Carbon::now()->toDateTimeString()]);
+
+        return $response->withJson($emoji, 200);
     }
 
     /**
@@ -179,23 +169,23 @@ class EmojiController
      */
     public function deleteEmoji($request, $response, $args)
     {
-        
         $emoji = Emoji::find($args['id']);
         if (count($emoji) < 1) {
-                return $response->withJson(['message' => 'No record to delete because the id supplied is invalid'], 404);
+            return $response->withJson(['message' => 'No record to delete because the id supplied is invalid'], 404);
         }
 
         if (is_null($this->getTheOwner($args, $request, $response)->first())) {
-            return $response->withJson(['message' => 'Emoji cannot be deleted because you are not the creator',], 401);
+            return $response->withJson(['message' => 'Emoji cannot be deleted because you are not the creator'], 401);
         }
 
         $emoji->where('id', '=', $args['id'])->delete();
+
         return $response->withJson(['message' => 'Emoji successfully deleted.'], 200);
     }
 
     /**
      * This method authenticate and return user id.
-     * 
+     *
      * @param $response
      * @param $request
      *
@@ -207,21 +197,20 @@ class EmojiController
 
         try {
             if (isset($jwtoken)) {
+                $secretKey = getenv('APP_SECRET');
 
-                    $secretKey = getenv('APP_SECRET');
-                    
-                    $jwt = $jwtoken[0];
+                $jwt = $jwtoken[0];
 
-                    $decodedToken = JWT::decode($jwt, $secretKey, ['HS256']);
+                $decodedToken = JWT::decode($jwt, $secretKey, ['HS256']);
 
-                    $tokenInfo = (array) $decodedToken;
-                    $userInfo = (array) $tokenInfo['data'];
+                $tokenInfo = (array) $decodedToken;
+                $userInfo = (array) $tokenInfo['data'];
 
-                    return $userInfo['id'];
+                return $userInfo['id'];
             }
         } catch (Exception $e) {
             return $response->withJson(['status: fail, msg: Unauthorized']);
-       }
+        }
     }
 
     /**
@@ -244,7 +233,7 @@ class EmojiController
     }
 
     /**
-     * This method solves for rightful of a record
+     * This method solves for rightful of a record.
      */
     public function getTheOwner($args, $request, $response)
     {
@@ -276,6 +265,7 @@ class EmojiController
                 ]);
             }
         }
+
         return $emojiKeyword->id;
     }
 }
