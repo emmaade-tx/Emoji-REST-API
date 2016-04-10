@@ -4,7 +4,6 @@ namespace Demo;
 
 use Dotenv\Dotenv;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 
 class App
 {
@@ -23,14 +22,13 @@ class App
         require __DIR__.'/../src/dependencies.php';
         // Register routes
         require __DIR__.'/../src/routes.php';
-        $capsule = new Capsule;
+        $capsule = new Capsule();
 
         $this->loadEnv();
         $this->app = $app;
         $this->capsule = $capsule;
         $this->setUpDatabaseManager();
     }
-
 
     /**
      * Setup Eloquent ORM.
@@ -60,7 +58,7 @@ class App
         $dotenv = new Dotenv(__DIR__.'/../');
         $dotenv->load();
     }
-   
+
     /**
      * Get an instance of the application.
      *
