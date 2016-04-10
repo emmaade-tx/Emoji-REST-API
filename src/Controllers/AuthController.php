@@ -1,11 +1,9 @@
-<?php 
+<?php
 
 namespace Demo;
 
-use Demo\User;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
-use Illuminate\Database\Capsule\Manager as Capsule;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -26,20 +24,18 @@ class AuthController
         $validateResponse = $this->validateUserData(['username', 'password'], $userData);
 
         if (is_array($validateResponse)) {
-                return $response->withJson($validateResponse, 400);
+            return $response->withJson($validateResponse, 400);
         }
 
         $user = $this->authenticate($userData['username'], $userData['password']);
 
-        if(! $user) {
-             return $response->withJson(['message' => 'Username or Password field not valid.'], 400);   
+        if (!$user) {
+            return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
         }
-
-        $userInfo = ['id' => $user->id];
-        $token = $this->generateToken($userInfo);
+       
+        $token = $this->generateToken($user->Id);
 
         return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
-       
     }
 
     /**
@@ -64,7 +60,7 @@ class AuthController
             'userId'   => $userId, // userid from the users table
             ],
         ];
-
+    
         return JWT::encode($token, $appSecret, $jwtAlgorithm);
     }
 
@@ -81,7 +77,7 @@ class AuthController
         $userData = $request->getParsedBody();
         $validateResponse = $this->validateUserData(['fullname', 'username', 'password'], $userData);
         if (is_array($validateResponse)) {
-                return $response->withJson($validateResponse, 400);
+            return $response->withJson($validateResponse, 400);
         }
 
         if (User::where('username', $userData['username'])->first()) {
@@ -95,6 +91,7 @@ class AuthController
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ]);
+
         return $response->withJson(['message' => 'User successfully created.'], 201);
     }
 
@@ -108,6 +105,7 @@ class AuthController
     public function logout(Request $request, Response $response)
     {
         $user = $request->getAttribute('user');
+
         return $response->withJson(['message' => 'Logout successful'], 200);
     }
 
@@ -125,10 +123,13 @@ class AuthController
         if ($user->isEmpty()) {
             return false;
         }
+
         $user = $user->first();
+        
         if (password_verify($password, $user->password)) {
             return $user;
         }
+
         return false;
     }
 
@@ -140,35 +141,33 @@ class AuthController
      *
      * @return bool
      */
-    
     public function validateUserData($expectedFields, $userData)
     {
         $tableFields = [];
         $tableValues = [];
-        foreach ($userData as $key => $val) {
+
+       foreach ($userData as $key => $val) {
             $tableFields[] = $key;
             $tableValues[] = $val;
         }
         $result = array_diff($expectedFields, $tableFields);
-        
-        if (count($result) > 0) {
-             return ['message' => 'All fields must be provided.'];
+
+        if (count($result) > 0 && empty($userData)) {
+            return ['message' => 'All fields must be provided.'];
         }
-  
+
         $tableValues = implode('', $tableValues);
 
         if (empty($tableValues)) {
-
             return ['message' => 'All fields are required'];
         }
 
         foreach ($userData as $key => $val) {
             if (!in_array($key, $expectedFields)) {
-                 return ['message' => 'Unwanted fields must be removed'];
+                return ['message' => 'Unwanted fields must be removed'];
             }
         }
 
-        return true;   
+        return true;
     }
 }
-

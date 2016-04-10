@@ -2,8 +2,8 @@
 
 namespace Demo;
 
-use Firebase\JWT\JWT;
 use Demo\Model\User;
+use Firebase\JWT\JWT;
 
 class AuthMiddleware
 {
@@ -21,19 +21,21 @@ class AuthMiddleware
         $jwtoken = $request->getHeader('HTTP_AUTHORIZATION');
 
         try {
-            if (is_array($jwtoken) && ! empty($jwtoken)) {
-                    $secretKey = base64_decode(getenv('APP_SECRET'));
-                    $jwt = json_decode($jwtoken[0], true);
+                if (is_array($jwtoken) && !empty($jwtoken)) {
 
-                    $decodedToken = JWT::decode($jwt['jwt'], $secretKey, ['HS256']);
-                    $tokenInfo = (array) $decodedToken;
-                    $userInfo = (array) $tokenInfo['data'];
-                    return $userInfo['id'];
+                $secretKey = getenv('APP_SECRET');
+                $jwt = $jwtoken[0];
+                $decodedToken = JWT::decode($jwt, $secretKey, ['HS256']);
+                $tokenInfo = (array) $decodedToken;
+                $userInfo = (array) $tokenInfo['data'];
+
+                return $userInfo['userId'];
+                }
+
+            }catch (Exception $e) {
+                return $response->withJson(['status: fail, msg: Unauthorized']);
             }
-        }catch (Exception $e) {
-            return $response->withJson(['status: fail, msg: Unauthorized']);
-        }
-        
+
         return $response->withJson(['message' => 'User unauthorized due to invalid token'], 401);
     }
 }
