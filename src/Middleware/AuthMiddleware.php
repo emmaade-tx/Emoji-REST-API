@@ -4,12 +4,10 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
 namespace Demo;
 
-use Demo\User;
-use Firebase\JWT\JWT;
 use Exception;
+use Firebase\JWT\JWT;
 
 class AuthMiddleware
 {
@@ -26,9 +24,8 @@ class AuthMiddleware
     {
         $authHeader = $request->getHeader('HTTP_AUTHORIZATION');
 
-
         try {
-            if (! empty($authHeader)) {
+            if (!empty($authHeader)) {
                 $secretKey = getenv('APP_SECRET');
                 $jwt = $authHeader[0];
                 //decode the JWT using the key from config
@@ -37,8 +34,9 @@ class AuthMiddleware
                 return $next($request, $response);
             }
         } catch (Exception $e) {
-           return $response->withJson(['status: fail, msg: Unauthorized']);
+            return $response->withJson(['status: fail, msg: Unauthorized']);
         }
+
         return $response->withJson(['message' => 'User unauthorized due to invalid token'], 401);
     }
 }
