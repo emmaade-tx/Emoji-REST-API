@@ -22,14 +22,14 @@ class AuthMiddleware
 
         try {
             if (is_array($jwtoken) && !empty($jwtoken)) {
-                $secretKey = base64_decode(getenv('APP_SECRET'));
-                $jwt = json_decode($jwtoken[0], true);
 
-                $decodedToken = JWT::decode($jwt['jwt'], $secretKey, ['HS256']);
+                $secretKey = getenv('APP_SECRET');
+                $jwt = $jwtoken[0];
+                $decodedToken = JWT::decode($jwt, $secretKey, ['HS256']);
                 $tokenInfo = (array) $decodedToken;
                 $userInfo = (array) $tokenInfo['data'];
 
-                return $userInfo['id'];
+                return $userInfo['userId'];
             }
         } catch (Exception $e) {
             return $response->withJson(['status: fail, msg: Unauthorized']);

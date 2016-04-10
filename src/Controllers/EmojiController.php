@@ -32,7 +32,7 @@ class EmojiController
         $emoji = Emoji::with('keywords', 'category', 'created_by')->get();
 
         if (count($emoji) > 0) {
-            return $response->withJson($this->formatEmoji($emoji));
+            return $response->withJson($emoji);
         }
 
         return $response->withJson(['message' => 'Oops, No Emoji to display'], 404);
@@ -206,30 +206,11 @@ class EmojiController
                 $tokenInfo = (array) $decodedToken;
                 $userInfo = (array) $tokenInfo['data'];
 
-                return $userInfo['id'];
+                return $userInfo['userId'];
             }
         } catch (Exception $e) {
             return $response->withJson(['status: fail, msg: Unauthorized']);
         }
-    }
-
-    /**
-     * Format emoji information return by Eloquent for API format.
-     *
-     * @param Illuminate\Database\Eloquent\Collection $emojis
-     *
-     * @return void
-     */
-    public function formatEmoji($emojis)
-    {
-        $emojis = $emojis->toArray();
-        foreach ($emojis as $key => &$value) {
-            $value['keywords'] = array_map(function ($arr) { return $arr['name']; }, $value['keywords']);
-            $value['category'] = $value['category']['category_name'];
-            $value['created_by'] = $value['created_by']['id'];
-        }
-
-        return $emojis;
     }
 
     /**

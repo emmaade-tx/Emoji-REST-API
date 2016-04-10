@@ -14,7 +14,7 @@ class App
      */
     protected $app;
 
-    public function __construct()
+    public function __construct($path = null)
     {
         $settings = require __DIR__.'/../src/settings.php';
         $app = new \Slim\App($settings);
@@ -24,7 +24,7 @@ class App
         require __DIR__.'/../src/routes.php';
         $capsule = new Capsule();
 
-        $this->loadEnv();
+        $this->loadEnv($path);
         $this->app = $app;
         $this->capsule = $capsule;
         $this->setUpDatabaseManager();
@@ -53,9 +53,10 @@ class App
     /**
      * Load Dotenv to grant getenv() access to environment variables in .env file.
      */
-    public function loadEnv()
+    public function loadEnv($path = null)
     {
-        $dotenv = new Dotenv(__DIR__.'/../');
+        $envPath = $path == null ? __DIR__.'/../' : $path;
+        $dotenv = new Dotenv($envPath);
         $dotenv->load();
     }
 
