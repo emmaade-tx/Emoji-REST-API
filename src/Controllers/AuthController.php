@@ -19,7 +19,7 @@ class AuthController
      * @param Slim\Http\Request  $request
      * @param Slim\Http\Response $response
      *
-     * @return Slim\Http\Response
+     * @return json response
      */
     public function login($request, $response)
     {
@@ -51,17 +51,17 @@ class AuthController
      */
     private function generateToken($userId)
     {
-        $appSecret = getenv('APP_SECRET');
+        $appSecret    = getenv('APP_SECRET');
         $jwtAlgorithm = getenv('JWT_ALGORITHM');
-        $timeIssued = time();
-        $tokenId = base64_encode(mcrypt_create_iv(32));
+        $timeIssued   = time();
+        $tokenId      = base64_encode(mcrypt_create_iv(32));
         $token = [
-            'iat'  => $timeIssued,   // Issued at: time when the token was generated
-            'jti'  => $tokenId,          // Json Token Id: an unique identifier for the token
-            'nbf'  => $timeIssued, //Not before time
-            'exp'  => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
-            'data' => [                  // Data related to the signer user
-            'userId'   => $userId, // userid from the users table
+            'iat'     => $timeIssued,   // Issued at: time when the token was generated
+            'jti'     => $tokenId,          // Json Token Id: an unique identifier for the token
+            'nbf'     => $timeIssued, //Not before time
+            'exp'     => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
+            'data'    => [                  // Data related to the signer user
+                'userId'  => $userId, // userid from the users tableu;
             ],
         ];
 
@@ -74,12 +74,13 @@ class AuthController
      * @param Slim\Http\Request  $request
      * @param Slim\Http\Response $response
      *
-     * @return Slim\Http\Response
+     * @return json response
      */
     public function register($request, $response)
     {
         $userData = $request->getParsedBody();
         $validateResponse = $this->validateUserData(['fullname', 'username', 'password'], $userData);
+
         if (is_array($validateResponse)) {
             return $response->withJson($validateResponse, 400);
         }
@@ -87,6 +88,7 @@ class AuthController
         if (User::where('username', $userData['username'])->first()) {
             return $response->withJson(['message' => 'Username already exist.'], 409);
         }
+
         User::firstOrCreate(
                 [
                     'fullname'   => $userData['fullname'],
@@ -104,7 +106,7 @@ class AuthController
      *
      * @param $args logout
      *
-     * @return $response
+     * @return json response
      */
     public function logout(Request $request, Response $response)
     {
@@ -124,6 +126,7 @@ class AuthController
     public function authenticate($username, $password)
     {
         $user = User::where('username', $username)->get();
+
         if ($user->isEmpty()) {
             return false;
         }
@@ -154,6 +157,7 @@ class AuthController
             $tableFields[] = $key;
             $tableValues[] = $val;
         }
+
         $result = array_diff($expectedFields, $tableFields);
 
         if (count($result) > 0 && empty($userData)) {

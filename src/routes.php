@@ -41,7 +41,7 @@ $app->post('/', function (Request $request, Response $response) {
 
 /*
 |--------------------------------------------------------------------------
-| These endpoints groups route that requires Middleware
+| These endpoints groups route that requires Middleware together
 |
 | @param $request
 |
@@ -109,10 +109,6 @@ $app->post('/auth/login', 'AuthController:login');
 | This verb registers a new user
 |
 | @param $request
-|
-| @param $args
-|
-| @param $emoji
 |
 | @param $request
 |
