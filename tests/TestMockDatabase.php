@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Exception;
+use PDO;
 use Demo\Emoji;
 use Demo\Keyword;
 use Demo\User;
