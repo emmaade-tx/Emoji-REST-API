@@ -15,7 +15,7 @@ services:
 before_install:
    - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
 
-   - mysql -e "use database naijaEmoji;" 
+   - mysql -e "use naijaEmoji;" 
 
    - mysql -e "CREATE TABLE keywords
       (
