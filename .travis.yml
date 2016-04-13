@@ -9,6 +9,9 @@ matrix:
     allow_failures:
         - php: hhvm
 
+services:
+    - mysql
+
 before_install:
    - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
 
@@ -24,3 +27,4 @@ after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
   - travis_retry php vendor/bin/coveralls -v
+  - mysql -e 'create database EmojiEndpointsTest';
