@@ -16,7 +16,7 @@ before_install:
    - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
 
 before_script:
-   - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
+   - mysql -e "create database IF NOT EXISTS naijaEmoji;"
 
 install: travis_retry composer install --no-interaction --prefer-source
 
