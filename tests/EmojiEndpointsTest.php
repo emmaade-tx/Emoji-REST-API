@@ -3,6 +3,7 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
+
 namespace Tests;
 
 require_once 'TestMockDatabase.php';
@@ -21,7 +22,6 @@ use Slim\Http\Environment;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-
 class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 {
     protected $app;
@@ -30,7 +30,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     protected $registerErrorMessage;
     protected $updateSuccessMessage;
     protected $envRootPath;
-
     public function setUp()
     {
         $root = vfsStream::setup();
@@ -51,7 +50,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->registerErrorMessage = 'Username or Password field not provided.';
         $this->updateSuccessMessage = 'Emoji updated successfully.';
     }
-
     protected function deleteWithToken($url, $token)
     {
         $env = Environment::mock([
@@ -63,10 +61,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
-
         return $this->app->run(true);
     }
-
     protected function get($url)
     {
         $env = Environment::mock([
@@ -75,10 +71,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             ]);
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
-
         return $this->app->run(true);
     }
-
     protected function post($url, $body)
     {
         $env = Environment::mock([
@@ -90,7 +84,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         return $this->app->run(true);
     }
-
     protected function patchWithToken($url, $token, $body)
     {
         $env = Environment::mock([
@@ -104,7 +97,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         return $this->app->run(true);
     }
-
     protected function postWithToken($url, $token, $body)
     {
         $env = Environment::mock([
@@ -117,20 +109,16 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         return $this->app->run(true);
     }
-
     public function testPHPUnitWarningSuppressor()
     {
         $this->assertTrue(true);
     }
-
     protected function getLoginTokenForTestUser()
     {
         $response = $this->post('/auth/login', ['username' => 'tester', 'password' => 'test']);
         $result = json_decode($response->getBody(), true);
-
         return $result['token'];
     }
-
     /**
      * This method ascertain that emoji index page return status code 404.
      *
@@ -143,7 +131,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $response = $this->post('/', ['ACCEPT' => 'application/json']);
         $this->assertEquals('404', $response->getStatusCode());
     }
-
     /**
      * This method ascertain that emoji index page return status code 404.
      *
@@ -156,7 +143,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $response = $this->get('/', ['ACCEPT' => 'application/json']);
         $this->assertEquals('200', $response->getStatusCode());
     }
-
     public function testGetAllEmojis()
     {
         $emoji = $this->user->emoji->first();
@@ -166,7 +152,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data[0]['name'], $emoji->name);
         $this->assertEquals($data[0]['category'], $emoji->category);
     }
-
     public function testGetEmojiReturnsCorrectEmojiWithStatusCodeOf200()
     {
         $emoji = $this->user->emoji()->first();
@@ -176,14 +161,12 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($data['name'], $emoji->name);
         $this->assertSame($data['category'], $emoji->category);
     }
-
     public function testGetReturnsStatusCode404WithMsgWhenRequestRouteDoesNotExit()
     {
         $response = $this->get('/jsdjsdf');
         $data = json_decode($response->getBody(), true);
         $this->assertSame($response->getStatusCode(), 404);
     }
-
     public function testGetEmojiReturnsStatusCodeOf404WithMsgWhenEmojiWithPassedIdNotFound()
     {
         $response = $this->get('/emojis/as3#');
@@ -191,7 +174,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 404);
         $this->assertSame($data['message'], 'The requested Emoji is not found.');
     }
-
      public function testRequestWithLoggedoutTokenReturnsStatusCode200()
     {
         $response = $this->post('/auth/login', ['username' => 'tester', 'password' => 'test']);
@@ -208,16 +190,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 200);
         $this->assertContains($token, $result);
     }
-
-
-
-
-
-
-
-
-
-
     public function testCreateEmojiReturnsStatusCode201WithMsgWhenWellPreparedEmojiDataIsSent()
     {
         $emojiData = [
@@ -231,7 +203,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $result = (string) $response->getBody();
         $this->assertSame($response->getStatusCode(), 200);
     }
-
     // public function testCreateEmojiReturnsStatusCode201WithMsgWhenEmojiDataWithEmptyKeywordIsPassed()
     // {
     //     $emojiData = [
@@ -246,7 +217,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     //     var_dump($emojiData);
     //     var_dump($token);
     //     exit;
-
     //     $result = (string) $response->getBody();
     //     $this->assertSame($response->getStatusCode(), 201);
     //     $this->assertContains('Emoji created successfully.', $result);
@@ -318,8 +288,4 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     //     $this->assertSame($response->getStatusCode(), 400);
     //     $this->assertContains($this->updateErrorMessage, $result);
     // }
-
-
 }
-
-
