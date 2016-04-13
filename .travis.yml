@@ -15,6 +15,9 @@ services:
 before_install:
    - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
 
+before_script:
+   - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
+
 install: travis_retry composer install --no-interaction --prefer-source
 
 script:
@@ -27,4 +30,3 @@ after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
   - travis_retry php vendor/bin/coveralls -v
-  - mysql -e 'create database naijaEmoji';
