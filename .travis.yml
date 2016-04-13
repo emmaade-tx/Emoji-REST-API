@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 5.5
   - 5.6
   - 7.0
   - hhvm
@@ -11,7 +10,7 @@ matrix:
         - php: hhvm
 
 before_install:
-   - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
+   - sqlite -e "create database IF NOT EXISTS naijaEmoji;" -uroot
 
 install: travis_retry composer install --no-interaction --prefer-source
 
