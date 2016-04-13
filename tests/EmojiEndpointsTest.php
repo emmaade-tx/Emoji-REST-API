@@ -40,6 +40,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             [Database]
             driver = mysql
             host = 127.0.0.1:33060
+            database = naijaEmoji
+            username = root
+            password = 
             charset=utf8
             collation=utf8_unicode_ci
             database=:memory:
@@ -198,9 +201,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         'category' => 'aaa',
         'keywords' => ['lol', 'hmmm'],
         ];
-        $token = $this->getLoginTokenForTestUser();
+        $token    = $this->getLoginTokenForTestUser();
         $response = $this->postWithToken('/emojis', $token, $emojiData);
-        $result = (string) $response->getBody();
+        $result   = (string) $response->getBody();
         $this->assertSame($response->getStatusCode(), 200);
     }
     // public function testCreateEmojiReturnsStatusCode201WithMsgWhenEmojiDataWithEmptyKeywordIsPassed()
