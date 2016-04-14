@@ -13,7 +13,7 @@ services:
     - mysql
 
 before_install:
-   - mysql -e "create database IF NOT EXISTS naijaEmoji;" root
+   - mysql -e "create database IF NOT EXISTS naijaEmoji;" -root
 
 before_script:
    - mysql -e "create database IF NOT EXISTS naijaEmoji;"
