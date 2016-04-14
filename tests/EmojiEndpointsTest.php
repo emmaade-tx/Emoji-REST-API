@@ -40,7 +40,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             [Database]
             driver = sqlite
             host = 127.0.0.1
-            database = naijaEmoji
             charset=utf8
             collation=utf8_unicode_ci
             database=:memory:
