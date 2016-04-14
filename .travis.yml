@@ -8,6 +8,8 @@ php:
 matrix:
     allow_failures:
         - php: hhvm
+services:
+  - mysql
 
 install: travis_retry composer install --no-interaction --prefer-source
 
