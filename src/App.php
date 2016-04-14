@@ -8,10 +8,13 @@ namespace Demo;
 
 use Dotenv\Dotenv;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Schema\Blueprint;
 
 class App
 {
     protected $app;
+    protected $schema;
+    protected $capsule;
 
     /**
      * This is a constructor; a default method  that will be called automatically during slim app instantiation.
@@ -28,6 +31,8 @@ class App
         $this->app = $app;
         $capsule = new Capsule();
         $this->capsule = $capsule;
+        $schema = new DatabaseSchema();
+        $this->schema = $schema;
         $this->loadEnv($path); 
         $this->setUpDatabaseManager();
         $this->setupDatabaseSchema();
@@ -59,7 +64,7 @@ class App
     public function setupDatabaseSchema()
     {
         try {
-            DatabaseSchema::createTables();
+            $this->schema->createTables();
         } catch (\Exception $e) {
             // This exception would be caught by the global exception handler.
         }
