@@ -62,18 +62,12 @@ class TestMockDatabase
     public function mockData()
     {
         Capsule::beginTransaction();
-        try {
             $user = User::firstOrCreate(['fullname' => 'John Test', 'username' => 'tester', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
             $user2 = User::firstOrCreate(['fullname' => 'John Test2', 'username' => 'tester2', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
             $this->createEmojiOwnedBy($user);
             $this->createEmojiOwnedBy($user2);
             Capsule::commit();
-
-        } catch (Exception $e) {
-           
-            throw $e;
-        }
     
-        return $user;
+            return $user;
     }
 }
