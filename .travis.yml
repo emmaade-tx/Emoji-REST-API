@@ -11,6 +11,8 @@ matrix:
 
 install: travis_retry composer install --no-interaction --prefer-source
 
+before_install:
+   - mysql -e "create database IF NOT EXISTS naijaEmoji;"
 
 script:
   - mkdir -p build/logs
