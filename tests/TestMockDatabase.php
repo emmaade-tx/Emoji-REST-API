@@ -70,7 +70,7 @@ class TestMockDatabase
             Capsule::commit();
 
         } catch (Exception $e) {
-            Capsule::rollback();
+           
             throw $e;
         }
     
