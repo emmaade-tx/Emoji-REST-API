@@ -32,19 +32,15 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     protected $envRootPath;
     public function setUp()
     {
-        $root = vfsStream::setup();
-        $envFilePath = vfsStream::newFile('.env')->at($root);
-        $envFilePath->setContent('
-            APP_SECRET=secretKey 
-            JWT_ALGORITHM = HS256
-            [Database]
-            driver = sqlite
-            host = 127.0.0.1
-            charset=utf8
-            collation=utf8_unicode_ci
-            database=:memory:
-            ');
-        $this->app = (new App($root->url()))->get();
+        $this->root = vfsStream::setup('home');
+        $this->configFile = vfsStream::url('home/.env');
+        
+        $contents = "APP_SECRET=secretKey\nJWT_ALGORITHM = HS256\n[Database]\ndriver=mysql\nhost=127.0.0.1\nusername=root\npassword=\ncharset=utf8\ncollation=utf8_unicode_ci\ndatabase=naijaEmoji";
+        $file = fopen($this->configFile, 'w');
+        fwrite($file, $contents);
+        fclose($file);
+
+        $this->app = (new App("vfs://home/"))->get();
         $this->mockDatabase = new TestMockDatabase();
         $this->user = $this->mockDatabase->mockData();
         $this->registerErrorMessage = 'Username or Password field not provided.';
