@@ -12,6 +12,7 @@ use Demo\DatabaseSchema;
 
 class TestMockDatabase
 {
+    protected $schema;
     public function __construct()
     {
         $schema = new DatabaseSchema()
@@ -72,8 +73,8 @@ class TestMockDatabase
     {
 
         Capsule::beginTransaction();
-            $user = $this->createUser(['fullname' => 'John Test', 'username' => 'tester', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
-            $user2 = $this->createUser(['fullname' => 'John Test2', 'username' => 'tester2', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
+            $user = $this->createUserTable(['fullname' => 'John Test', 'username' => 'tester', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
+            $user2 = $this->createUserTable(['fullname' => 'John Test2', 'username' => 'tester2', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
             $this->createEmojiOwnedBy($user);
             $this->createEmojiOwnedBy($user2);
             Capsule::commit();

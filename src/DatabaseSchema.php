@@ -8,17 +8,6 @@ use Illuminate\Database\Schema\Blueprint;
 class DatabaseSchema
 {
     /**
-     * This method migrates all database schema when this class is instatiated.
-     */
-    public function __construct()
-    {
-        $this->createUser();
-        $this->createKeyword();
-        $this->createCategory();
-        $this->createEmoji();
-    }
-
-    /**
      * Create users table
      */
     private function createUsersTable()
