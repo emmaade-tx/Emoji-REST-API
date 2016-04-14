@@ -38,11 +38,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             APP_SECRET=secretKey 
             JWT_ALGORITHM = HS256
             [Database]
-            driver = mysql
-            host = 127.0.0.1:33060
+            driver = sqlite
+            host = 127.0.0.1
             database = naijaEmoji
-            username = root
-            password = 
             charset=utf8
             collation=utf8_unicode_ci
             database=:memory:
