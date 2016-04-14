@@ -62,6 +62,8 @@ class TestMockDatabase
      */
     public function mockData()
     {
+        new DatabaseSchema();
+        
         Capsule::beginTransaction();
             $user = User::firstOrCreate(['fullname' => 'John Test', 'username' => 'tester', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
             $user2 = User::firstOrCreate(['fullname' => 'John Test2', 'username' => 'tester2', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
