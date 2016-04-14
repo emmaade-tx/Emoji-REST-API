@@ -11,12 +11,14 @@ matrix:
 services:
   - mysql
 
-install: travis_retry composer install --no-interaction --prefer-source
-
 before_script:
+   - mysql -e "create database IF NOT EXISTS naijaEmoji;"
+
+
+before_install:
    - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
 
-
+install: travis_retry composer install --no-interaction --prefer-source
 
 script:
   - mkdir -p build/logs
