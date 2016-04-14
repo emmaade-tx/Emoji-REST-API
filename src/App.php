@@ -56,7 +56,7 @@ class App
     /**
      * Create necessary database tables needed in the application.
      */
-    private function setUpDatabaseSchema()
+    public function setupDatabaseSchema()
     {
         try {
             DatabaseSchema::createTables();
