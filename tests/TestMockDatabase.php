@@ -12,6 +12,12 @@ use Demo\DatabaseSchema;
 
 class TestMockDatabase
 {
+
+    public function __contruct()
+    {
+        $this->schema = new DatabaseSchema()
+    }
+
     /**
      * Create test emoji for test user.
      *
@@ -62,8 +68,10 @@ class TestMockDatabase
      */
     public function mockData()
     {
-        new DatabaseSchema();
-        
+        $this->schema->createUsersTable();
+        $this->schema->createEmojisTable();
+        $this->schema->createKeywordsTable();
+
         Capsule::beginTransaction();
             $user = User::firstOrCreate(['fullname' => 'John Test', 'username' => 'tester', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
             $user2 = User::firstOrCreate(['fullname' => 'John Test2', 'username' => 'tester2', 'password' => password_hash('test', PASSWORD_DEFAULT)]);
