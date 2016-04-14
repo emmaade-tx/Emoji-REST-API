@@ -29,6 +29,7 @@ class App
         $this->capsule = $capsule;
         $this->loadEnv(); 
         $this->setUpDatabaseManager();
+        $this->setupDatabaseSchema();
     }
 
     /**
@@ -49,6 +50,18 @@ class App
             ]);
         $this->capsule->setAsGlobal();
         $this->capsule->bootEloquent();
+    }
+
+    /**
+     * Create necessary database tables needed in the application.
+     */
+    private function setUpDatabaseSchema()
+    {
+        try {
+            DatabaseSchema::createTables();
+        } catch (\Exception $e) {
+            // This exception would be caught by the global exception handler.
+        }
     }
 
     /**
