@@ -15,6 +15,7 @@ use Demo\Emoji;
 use Demo\User;
 use Demo\App;
 use Demo\Keyword;
+use Demo\DatabaseSchema;
 use Demo\AuthController;
 use Demo\EmojiController;
 use PHPUnit_Framework_TestCase;

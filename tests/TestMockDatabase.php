@@ -8,6 +8,7 @@ use PDO;
 use Demo\Emoji;
 use Demo\Keyword;
 use Demo\User;
+use Demo\DatabaseSchema;
 
 class TestMockDatabase
 {
