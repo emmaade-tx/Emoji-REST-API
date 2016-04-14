@@ -9,13 +9,8 @@ matrix:
     allow_failures:
         - php: hhvm
 
-services:
-  - postgresql
-
 install: travis_retry composer install --no-interaction --prefer-source
 
-before_script:
-  - psql -c 'create database test;' -U postgres
 
 script:
   - mkdir -p build/logs
