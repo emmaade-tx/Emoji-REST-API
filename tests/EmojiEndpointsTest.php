@@ -26,6 +26,7 @@ use Slim\Http\Response;
 class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 {
     protected $app;
+    protected $schema;
     protected $emoji;
     protected $user;
     protected $registerErrorMessage;
@@ -41,6 +42,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         fwrite($file, $contents);
         fclose($file);
 
+        $this->schema = new DatabaseSchema();
         $this->app = (new App("vfs://home/"))->get();
         $this->mockDatabase = new TestMockDatabase();
         $this->user = $this->mockDatabase->mockData();
@@ -49,6 +51,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     }
     protected function deleteWithToken($url, $token)
     {
+        
         $env = Environment::mock([
             'REQUEST_METHOD'         => 'DELETE',
             'REQUEST_URI'            => $url,
