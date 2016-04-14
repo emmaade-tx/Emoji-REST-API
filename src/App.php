@@ -16,8 +16,9 @@ class App
     /**
      * This is a constructor; a default method  that will be called automatically during slim app instantiation.
      */
-    public function __construct()
+    public function __construct($path = null)
     {
+        // dd($path);
         $settings = require __DIR__.'/../src/settings.php';
         $app = new \Slim\App($settings);
         // Set up dependencies
@@ -27,7 +28,7 @@ class App
         $this->app = $app;
         $capsule = new Capsule();
         $this->capsule = $capsule;
-        $this->loadEnv(); 
+        $this->loadEnv($path); 
         $this->setUpDatabaseManager();
         $this->setupDatabaseSchema();
     }
@@ -67,9 +68,10 @@ class App
     /**
      * Load Dotenv to grant getenv() access to environment variables in .env file.
      */
-    public function loadEnv()
+    public function loadEnv($path = null)
     {
-        $dotenv = new Dotenv(__DIR__.'/../');
+        $path = $path == null ? __DIR__ . '/../' : $path;
+        $dotenv = new Dotenv($path);
         $dotenv->load();
     }
 
