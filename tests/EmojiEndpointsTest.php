@@ -42,6 +42,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         fclose($file);
 
         $this->app = (new App("vfs://home/"))->get();
+        new DatabaseSchema();
         $this->mockDatabase = new TestMockDatabase();
         $this->user = $this->mockDatabase->mockData();
         $this->registerErrorMessage = 'Username or Password field not provided.';
