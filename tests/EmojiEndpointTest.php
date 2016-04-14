@@ -8,10 +8,10 @@
 namespace Tests;
 
 require __DIR__.'/../vendor/autoload.php';
+require_once 'TestUploadTables.php';
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use org\bovigo\vfs\vfsStream;
-use Demo\TestUploadTables;
 use Carbon\Carbon;
 use Exception;
 use Demo\Emoji;
@@ -35,6 +35,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     protected $registerErrorMessage;
     protected $updateSuccessMessage;
     protected $envRootPath;
+    protected $uploadTables;
 
     public function setUp()
     {
@@ -49,7 +50,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app = (new App("vfs://home/"))->get();
         $capsule = new Capsule();
         new DatabaseSchema();
-        //new TestUploadTables();
+        $uploadTables = new TestUploadTables();
     }
 
     public function request($method, $path, $options = [])
@@ -157,6 +158,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testCreateUser()
     {
+        $this->uploadTables->createUser();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/register',
@@ -219,6 +221,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     //     $this->assertArrayHasKey('jwt', $data);
     //     $this->assertSame($response->getStatusCode(), 200);
     // }
+    
     public function testThatInCorrectLoginCredentialWhereUsedToLogin()
     {
         $env = Environment::mock([
@@ -236,6 +239,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $response = $this->app->run(true);
         $this->assertSame($response->getStatusCode(), 500);
     }
+
     private function getCurrentToken()
     {
         $env = Environment::mock([
@@ -246,14 +250,15 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             ]);
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'username' => 'laztopaz',
-            'password' => 'tope0852',
+            'username' => 'test',
+            'password' => 'tester',
         ]);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
         return $data['jwt'];
     }
+
     public function testgetAllEmojis()
     {
         $env = Environment::mock([
@@ -268,20 +273,21 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $data = json_decode($response->getBody(), true);
         $this->assertSame($response->getStatusCode(), 500);
     }
-    // public function testGetSingleEmoji()
-    // {
-    //     $env = Environment::mock([
-    //         'REQUEST_METHOD' => 'GET',
-    //         'REQUEST_URI'    => '/emojis/1',
-    //         'CONTENT_TYPE'   => 'application/json',
-    //         'PATH_INFO'      => '/emojis',
-    //         ]);
-    //     $req = Request::createFromEnvironment($env);
-    //     $this->app->getContainer()['request'] = $req;
-    //     $response = $this->app->run(true);
-    //     $data = json_decode($response->getBody(), true);
-    //     $this->assertSame($response->getStatusCode(), 200);
-    // }
+
+    public function testGetSingleEmoji()
+    {
+        $env = Environment::mock([
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI'    => '/emojis/1',
+            'CONTENT_TYPE'   => 'application/json',
+            'PATH_INFO'      => '/emojis',
+            ]);
+        $req = Request::createFromEnvironment($env);
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $data = json_decode($response->getBody(), true);
+        $this->assertSame($response->getStatusCode(), 200);
+    }
     // public function testGetSingleEmojiNotExist()
     // {
     //     $env = Environment::mock([
