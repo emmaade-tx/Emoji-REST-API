@@ -8,9 +8,19 @@ use Illuminate\Database\Schema\Blueprint;
 class DatabaseSchema
 {
     /**
+     * Create needed tables in database.
+     */
+    public function createTables()
+    {
+        $this->createUsersTable();
+        $this->createEmojisTable();
+        $this->createKeywordsTable();
+    }
+
+    /**
      * Create users table
      */
-    private function createUsersTable()
+    private static function createUsersTable()
     {
         if (!Capsule::schema()->hasTable('users')) {
             Capsule::schema()->create('users', function (Blueprint $table) {
@@ -26,7 +36,7 @@ class DatabaseSchema
     /**
      * Create emojies table
      */
-    public function createEmojisTable()
+    public static function createEmojisTable()
     {
         if (!Capsule::schema()->hasTable('emojis')) {
             Capsule::schema()->create('emojis', function (Blueprint $table) {
@@ -43,7 +53,7 @@ class DatabaseSchema
     /**
      * Create keywords table
      */
-    public function createKeywordsTable()
+    public static function createKeywordsTable()
     {
         if (!Capsule::schema()->hasTable('keywords')) {
             Capsule::schema()->create('keywords', function (Blueprint $table) {
