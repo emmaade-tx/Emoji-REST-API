@@ -200,7 +200,7 @@ class EmojiController
             return $response->withJson(['message' => 'No record to delete because the id supplied is invalid'], 404);
         }
 
-        if (is_null($this->getTheOwner($args, $request, $response)->first())) {
+        if (is_null($this->getTheOwner($request, $response, $args)->first())) {
             return $response->withJson(['message' => 'Emoji cannot be deleted because you are not the creator'], 401);
         }
 
