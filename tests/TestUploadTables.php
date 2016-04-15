@@ -21,8 +21,7 @@ class TestUploadTables
     }
 
     public function createUser()
-    {
-        
+    { 
         $user = User::create([
             'fullname'  => 'Tester',
             'username'  => 'tester',

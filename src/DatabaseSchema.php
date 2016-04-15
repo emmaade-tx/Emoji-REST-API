@@ -20,7 +20,7 @@ class DatabaseSchema
     /**
      * Create users table
      */
-    private static function createUsersTable()
+    private function createUsersTable()
     {
         if (!Capsule::schema()->hasTable('users')) {
             Capsule::schema()->create('users', function (Blueprint $table) {
@@ -36,7 +36,7 @@ class DatabaseSchema
     /**
      * Create emojies table
      */
-    public static function createEmojisTable()
+    public function createEmojisTable()
     {
         if (!Capsule::schema()->hasTable('emojis')) {
             Capsule::schema()->create('emojis', function (Blueprint $table) {
@@ -53,7 +53,7 @@ class DatabaseSchema
     /**
      * Create keywords table
      */
-    public static function createKeywordsTable()
+    public function createKeywordsTable()
     {
         if (!Capsule::schema()->hasTable('keywords')) {
             Capsule::schema()->create('keywords', function (Blueprint $table) {
