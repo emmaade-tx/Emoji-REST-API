@@ -29,13 +29,11 @@ class App
         // Register routes
         require __DIR__.'/../src/routes.php';
         $this->app = $app;
-        $capsule = new Capsule();
-        $this->capsule = $capsule;
-        $schema = new DatabaseSchema();
-        $this->schema = $schema;
+        $this->capsule = new Capsule();
+        $this->schema = new DatabaseSchema();
         $this->loadEnv($path); 
         $this->setUpDatabaseManager();
-        $this->setupDatabaseSchema();
+        // $this->setupDatabaseSchema();
     }
 
     /**
@@ -44,16 +42,17 @@ class App
     private function setUpDatabaseManager()
     {
         //Register the database connection with Eloquent
-        $this->capsule->addConnection(
-            [
-                'driver'    => getenv('driver'),
-                'host'      => getenv('host'),
-                'database'  => getenv('database'),
-                'username'  => getenv('username'),
-                'password'  => getenv('password'),
-                'charset'   => 'utf8',
-                'collation' => 'utf8_unicode_ci',
-            ]);
+        $config =   [
+                            'driver'    => getenv('driver'),
+                            'host'      => getenv('host'),
+                            'database'  => getenv('database'),
+                            'username'  => getenv('username'),
+                            'password'  => getenv('password'),
+                            'charset'   => 'utf8',
+                            'collation' => 'utf8_unicode_ci',
+                    ];
+        // dd($config);
+        $this->capsule->addConnection($config);
         $this->capsule->setAsGlobal();
         $this->capsule->bootEloquent();
     }
