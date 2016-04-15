@@ -37,7 +37,9 @@ class AuthController
             return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
         }
 
-        $token = $this->generateToken($user->Id);
+        $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
+
+        $token = $this->generateToken($user->Id, $issTime);
 
         return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
     }
@@ -49,12 +51,13 @@ class AuthController
      *
      * @return string
      */
-    private function generateToken($userId)
+    private function generateToken($userId, $time = null)
     {
+        $time = $time == null ? time() : $time;
         $appSecret    = getenv('APP_SECRET');
         $jwtAlgorithm = getenv('JWT_ALGORITHM');
-        $timeIssued   = time();
-        $tokenId      = base64_encode(mcrypt_create_iv(32));
+        $timeIssued   = $time;
+        $tokenId      = base64_encode($time);
         $token = [
             'iat'     => $timeIssued,   // Issued at: time when the token was generated
             'jti'     => $tokenId,          // Json Token Id: an unique identifier for the token
