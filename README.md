@@ -14,18 +14,18 @@ To install this package, PHP 5.5+ and Composer are required
 **Usage**
 -----
 ----------
-To use this package, You need to set your environment variables to define your database parameters in your .env file to your local configuration.
+To use this package, You need to set your environment variables. Define your database parameters in your `.env file`
 
     driver = mysql
     host = 127.0.0.1
     port = port
     username = [Your username]	
     password = [Your password] 
-    database  = [Your databse ]
+    database  = [Your databse]
     
 Finally, boot-up the API service with PHP's Built-in web server:
 
-    php -S localhost:8080 -t public/
+    `$ php -S localhost:8000 -t public`
 
 All examples are shown in [POSTMAN](http://www.getpostman.com/).
 
@@ -57,10 +57,10 @@ Endpoints with access token
 Endpoints without access token
 ------------------------------
 
-POST /auth/register create a new user
-POST /auth/login Logs a user in
-GET /emojis List all the created emojis.
-GET /emojis/{id} Gets a single emoji
+- POST /auth/register create a new user
+- POST /auth/login Logs a user in
+- GET /emojis List all the created emojis
+- GET /emojis/{id} Gets a single emoji
 
 ----------
 **Registration**
@@ -176,7 +176,7 @@ If you discover any issue, kindly contact ademola.raimi@andela.com
 ----------
 
 
-Potato-ORM is maintained by Raimi Ademola.
+Emoji REST API is maintained by Raimi Ademola.
 
 **License**
 -------
@@ -185,4 +185,4 @@ Potato-ORM is maintained by Raimi Ademola.
 ----------
 
 
-Potato-ORM is released under the [MIT Licence](https://github.com/andela-araimi/Emoji-REST-API/blob/master/LICENSE.md). See the bundled LICENSE file for more details.
+Emoji REST API is released under the [MIT Licence](https://github.com/andela-araimi/Emoji-REST-API/blob/master/LICENSE.md). See the bundled LICENSE file for more details.
