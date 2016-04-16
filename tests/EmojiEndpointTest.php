@@ -207,7 +207,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $body = [
             'fullname' => 'prosper trainer',
-            'username' => 'unicodeveloper',
+            'username' => 'trainer',
             'password' => 'test',
         ];
 
@@ -230,7 +230,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'username' => 'tester',
+            'username' => 'trainer',
             'password' => 'test',
         ]);
         $this->app->getContainer()['request'] = $req;
