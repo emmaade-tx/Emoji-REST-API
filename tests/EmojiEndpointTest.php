@@ -471,12 +471,12 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $token = ( (string) $response->getBody());
-        
+
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'GET',
             'REQUEST_URI'        => '/auth/logout',
             'CONTENT_TYPE'       => 'application/json',
-            'HTTP_AUTHORIZATION' => $token;
+            'HTTP_AUTHORIZATION' => $token,
             ]);
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
