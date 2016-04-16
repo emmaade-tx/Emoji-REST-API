@@ -282,7 +282,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $response = $this->app->run(true);
         $token = ( (string) $response->getBody());
        
-        $expect = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0NDAyOTU2NzMsImp0aSI6Ik1UUTBNREk1TlRZM013PT0iLCJuYmYiOjE0NDAyOTU2NzMsImV4cCI6MTQ0Mjg4NzY3MywiZGF0YSI6eyJ1c2VySWQiOjF9fQ.iGP_Pwx2-WMDVodQcI5tcTWgh8LD21LwgQRFnH6IMmk';
+        $expect = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0NDAyOTU2NzMsImp0aSI6Ik1UUTBNREk1TlRZM013PT0iLCJuYmYiOjE0NDAyOTU2NzMsImV4cCI6MTQ0Mjg4NzY3MywiZGF0YSI6eyJ1c2VySWQiOm51bGx9fQ.Owt-mlXsl_JHmQVJq-QbF_2h3Cm9Pt3IzahOmuV93YE';
         $this->assertEquals($expect, $token);
 
         $this->assertSame($response->getStatusCode(), 200);
