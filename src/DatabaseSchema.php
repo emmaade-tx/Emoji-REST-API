@@ -49,7 +49,7 @@ class DatabaseSchema
             Capsule::schema()->create('keywords', function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('emoji_id');
-                $this->string('emoji_name');
+                $this->string('keyword_name');
                 $this->timestamps();
             });
         }
