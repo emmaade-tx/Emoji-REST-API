@@ -46,7 +46,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'driver = mysql',
             'host=localhost',
             'username=root',
-            'password=',
+            'password=secret',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
@@ -62,7 +62,15 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $this->app = (new App("vfs://home/"))->get();
         $this->capsule = new Capsule();
-        $this->schema = new DatabaseSchema();     
+        $this->schema = new DatabaseSchema();
+        $this->schema->createUsersTable();   
+        User::create(
+            [
+            'fullname'  => 'TestTester',
+            'username'  => 'tester',
+            'password'  => 'test'
+            ]
+        );
     }
 
     public function request($method, $path, $options = [])
@@ -140,10 +148,12 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         return $this->app->run(true);
     }
+
     public function testPHPUnitWarningSuppressor()
     {
         $this->assertTrue(true);
     }
+
     protected function getLoginTokenForTestUser()
     {
         $response = $this->post('/auth/login', ['username' => 'tester', 'password' => 'test']);
@@ -151,21 +161,30 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         return $result['token'];
     }
 
-    public function tenostuserLogin()
+    public function testuserLogin()
     {
+        // User::create(
+        //     [
+        //     'fullname'  => 'TestTester',
+        //     'username'  => 'tester',
+        //     'password'  => 'test'
+        //     ]
+        // );
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
             'CONTENT_TYPE'   => 'application/json',
             'PATH_INFO'      => '/auth',
         ]);
+
         $req = Request::createFromEnvironment($env);
+        $req = $req->withParsedBody([
+            'username' => 'tester',
+            'password' => 'test',
+        ]);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
-        $data = json_decode($response->getBody(), true);
-        // var_dump($req);
-        // exit;
-        $this->assertSame($response->getStatusCode(), 500);
+        $this->assertSame($response->getStatusCode(), 200);
     }
 
     public function testCreateUser()
@@ -214,14 +233,14 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     }
     public function testThatCorrectLoginCredentialWhereUsedToLogin()
     {
-        $this->schema->createUsersTable();   
-        User::create(
-            [
-            'fullname'  => 'TestTester',
-            'username'  => 'tester',
-            'password'  => 'test'
-            ]
-        );
+        // $this->schema->createUsersTable();   
+        // User::create(
+        //     [
+        //     'fullname'  => 'TestTester',
+        //     'username'  => 'tester',
+        //     'password'  => 'test'
+        //     ]
+        // );
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
@@ -246,7 +265,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 200);
     }
     
-    public function tnoestThatInCorrectLoginCredentialWhereUsedToLogin()
+    public function testThatInCorrectLoginCredentialWhereUsedToLogin()
     {
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
@@ -261,27 +280,28 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
-        $this->assertSame($response->getStatusCode(), 500);
+        $this->assertSame($response->getStatusCode(), 400);
     }
 
-    private function getCurrentToken()
-    {
-        $env = Environment::mock([
-            'REQUEST_METHOD' => 'POST',
-            'REQUEST_URI'    => '/auth/login',
-            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
-            'PATH_INFO'      => '/auth',
-            ]);
-        $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody([
-            'username' => 'test',
-            'password' => 'tester',
-        ]);
-        $this->app->getContainer()['request'] = $req;
-        $response = $this->app->run(true);
-        $data = json_decode($response->getBody(), true);
-        return $data['jwt'];
-    }
+    // private function getCurrentToken()
+    // {
+    //     $env = Environment::mock([
+    //         'REQUEST_METHOD' => 'POST',
+    //         'REQUEST_URI'    => '/auth/login',
+    //         'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
+    //         'PATH_INFO'      => '/auth',
+    //         ]);
+    //     $req = Request::createFromEnvironment($env);
+    //     $req = $req->withParsedBody([
+    //         'username' => 'test',
+    //         'password' => 'tester',
+    //     ]);
+    //     $this->app->getContainer()['request'] = $req;
+    //     $response = $this->app->run(true);
+    //     $data = json_decode($response->getBody(), true);
+        
+    //     return $data['jwt'];
+    // }
 
     public function tesnotgetAllEmojis()
     {
