@@ -40,7 +40,7 @@ class AuthController
         $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
 
         $token = $this->generateToken($user->Id, $issTime);
-
+        var_dump($token);
         return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
     }
 
