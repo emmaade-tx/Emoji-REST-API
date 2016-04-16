@@ -154,32 +154,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         return $result['token'];
     }
 
-    public function testuserLogin()
-    {
-        $env = Environment::mock([
-            'REQUEST_METHOD' => 'POST',
-            'REQUEST_URI'    => '/auth/login',
-            'CONTENT_TYPE'   => 'application/json',
-            'PATH_INFO'      => '/auth',
-        ]);
-
-        User::create([
-            'username' => 'tester',
-            'password' => 'test',
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-        ]);
-
-        $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody([
-            'username' => 'tester',
-            'password' => 'test',
-        ]);
-        $this->app->getContainer()['request'] = $req;
-        $response = $this->app->run(true);
-        $this->assertSame($response->getStatusCode(), 200);
-    }
-
     private function populateUser()
     {
         User::create([
@@ -190,10 +164,41 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
     }
 
+    private function populateEmoji()
+    {
+        $emoji = Emoji::create([
+            'name'       => 'Grinning face',
+            'chars'      => 'u-t1789',
+            'category'   => 'Category A',
+            'Keywords'   => ['happy','smile'],
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
+
+        $createdKeyword = $this->createEmojiKeywords($emoji->id, ['keywords']);
+    }
+
+    public function createEmojiKeywords($emoji_id, $keywords)
+    {
+        if ($keywords) {
+            $splittedKeywords = explode(',', $keywords);
+            $created_at = Carbon::now()->toDateTimeString();
+            $updated_at = Carbon::now()->toDateTimeString();
+            foreach ($splittedKeywords as $keyword) {
+                $emojiKeyword = Keyword::create([
+                        'emoji_id'     => $emoji_id,
+                        'keyword_name' => $keyword,
+                        'created_at'   => $created_at,
+                        'updated_at'   => $updated_at,
+                ]);
+            }
+        }
+
+        return $emojiKeyword->id;
+    }
 
     public function testCreateUser()
     {   
-        User::truncate();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/register',
@@ -213,6 +218,26 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($result['message'], 'User successfully created.');
         $this->assertSame($response->getStatusCode(), 201);
     }
+
+    public function testuserLogin()
+    {
+        $env = Environment::mock([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI'    => '/auth/login',
+            'CONTENT_TYPE'   => 'application/json',
+            'PATH_INFO'      => '/auth',
+        ]);
+
+        $req = Request::createFromEnvironment($env);
+        $req = $req->withParsedBody([
+            'username' => 'tester',
+            'password' => 'test',
+        ]);
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $this->assertSame($response->getStatusCode(), 200);
+    }
+
     public function tesnotPostEmoji()
     {
         $env = Environment::mock([
