@@ -44,9 +44,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'JWT_ALGORITHM = HS256',
             '[Database]',
             'driver = mysql',
-            'host=localhost',
-            'username=root',
-            'password=',
+            'host=localhost:33060',
+            'username=homestead',
+            'password=secret',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
@@ -177,7 +177,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'updated_at' => Carbon::now()->toDateTimeString(),
         ]);
 
-        $createdKeyword = $this->createEmojiKeywords($emoji->id, ['keywords']);
+        $createdKeyword = $this->createEmojiKeywords($emoji->id, 'keywords');
     }
 
     public function createEmojiKeywords($emoji_id, $keywords)
@@ -308,28 +308,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 400);
     }
 
-    // private function getCurrentToken()
-    // {
-    //     $env = Environment::mock([
-    //         'REQUEST_METHOD' => 'POST',
-    //         'REQUEST_URI'    => '/auth/login',
-    //         'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
-    //         'PATH_INFO'      => '/auth',
-    //         ]);
-    //     $req = Request::createFromEnvironment($env);
-    //     $req = $req->withParsedBody([
-    //         'username' => 'test',
-    //         'password' => 'tester',
-    //     ]);
-    //     $this->app->getContainer()['request'] = $req;
-    //     $response = $this->app->run(true);
-    //     $data = json_decode($response->getBody(), true);
-        
-    //     return $data['jwt'];
-    // }
-
     public function testgetAllEmojis()
     {
+        //Emoji::truncate();
+        $this->populateEmoji();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
             'REQUEST_URI'    => '/emojis',
@@ -337,14 +319,18 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'PATH_INFO'      => '/emojis',
             ]);
         $req = Request::createFromEnvironment($env);
+    
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
+    
         $data = json_decode($response->getBody(), true);
         $this->assertSame($response->getStatusCode(), 200);
     }
 
     public function testGetSingleEmoji()
     {
+        //Emoji::truncate();
+        $this->populateEmoji();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
             'REQUEST_URI'    => '/emojis/2',
