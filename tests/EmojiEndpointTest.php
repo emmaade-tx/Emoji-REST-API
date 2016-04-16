@@ -163,6 +163,13 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'PATH_INFO'      => '/auth',
         ]);
 
+        User::create([
+            'username' => 'tester',
+            'password' => 'test',
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
+
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
             'username' => 'tester',
