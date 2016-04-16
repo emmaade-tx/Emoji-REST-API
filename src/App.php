@@ -33,7 +33,7 @@ class App
         $this->schema = new DatabaseSchema();
         $this->loadEnv($path); 
         $this->setUpDatabaseManager();
-        // $this->setupDatabaseSchema();
+        $this->setupDatabaseSchema();
     }
 
     /**
@@ -51,7 +51,6 @@ class App
                             'charset'   => 'utf8',
                             'collation' => 'utf8_unicode_ci',
                     ];
-        // dd($config);
         $this->capsule->addConnection($config);
         $this->capsule->setAsGlobal();
         $this->capsule->bootEloquent();
@@ -63,7 +62,7 @@ class App
     public function setupDatabaseSchema()
     {
         try {
-            $this->schema->createTables();
+            $this->schema->createUsersTable();
         } catch (\Exception $e) {
             // This exception would be caught by the global exception handler.
         }
