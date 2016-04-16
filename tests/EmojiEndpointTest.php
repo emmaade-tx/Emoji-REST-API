@@ -46,7 +46,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'driver = mysql',
             'host=localhost',
             'username=root',
-            'password=secret',
+            'password=',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
