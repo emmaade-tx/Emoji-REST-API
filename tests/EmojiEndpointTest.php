@@ -310,7 +310,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testgetAllEmojis()
     {
-        //Emoji::truncate();
         $this->populateEmoji();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
@@ -329,7 +328,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testGetSingleEmoji()
     {
-        //Emoji::truncate();
         $this->populateEmoji();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
@@ -460,34 +458,38 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 200);
     }
 
-    public function tesnotuserLogoutWithToken()
+    public function testuserLogoutWithToken()
     {
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'GET',
             'REQUEST_URI'        => '/auth/logout',
             'CONTENT_TYPE'       => 'application/json',
-            'HTTP_AUTHORIZATION' => json_encode(['jwt' => $this->getCurrentToken()]),
+            'HTTP_AUTHORIZATION' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0NDAyOTU2NzMsImp0aSI6Ik1UUTBNREk1TlRZM013PT0iLCJuYmYiOjE0NDAyOTU2NzMsImV4cCI6MTQ0Mjg4NzY3MywiZGF0YSI6eyJ1c2VySWQiOm51bGx9fQ.Owt-mlXsl_JHmQVJq-QbF_2h3Cm9Pt3IzahOmuV93YE',
             ]);
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
+        $result = ['message' => 'Logout successful'];
+        $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 200);
     }
 
-    public function tesnotuserWantToLogoutWithoutCorrectQueryParams()
+    public function testuserLogoutWithoutCorrectToken()
     {
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'GET',
-            'REQUEST_URI'        => '/auth/signout',
+            'REQUEST_URI'        => '/auth/logout',
             'CONTENT_TYPE'       => 'application/json',
-            'HTTP_AUTHORIZATION' => json_encode(['jwt' => $this->getCurrentToken()]),
+            'HTTP_AUTHORIZATION' => '',
             ]);
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 404);
+        $result = ['0' => 'status: Token invalid or Expired'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 200);
     }
     
     public function notestuserLogoutWithoutToken()
