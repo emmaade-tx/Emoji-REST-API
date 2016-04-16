@@ -63,7 +63,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app = (new App("vfs://home/"))->get();
         $this->capsule = new Capsule();
         $this->schema = new DatabaseSchema();
-        $this->schema->createUsersTable(); 
+        $this->schema->createUsersTable();
+        $this->schema->createEmojisTable();
+        $this->schema->createKeywordsTable();
     }
 
     public function request($method, $path, $options = [])
@@ -326,7 +328,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     //     return $data['jwt'];
     // }
 
-    public function tesnotgetAllEmojis()
+    public function testgetAllEmojis()
     {
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
@@ -338,14 +340,14 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 500);
+        $this->assertSame($response->getStatusCode(), 200);
     }
 
-    public function tesnotGetSingleEmoji()
+    public function testGetSingleEmoji()
     {
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
-            'REQUEST_URI'    => '/emojis/1',
+            'REQUEST_URI'    => '/emojis/2',
             'CONTENT_TYPE'   => 'application/json',
             'PATH_INFO'      => '/emojis',
             ]);
@@ -353,10 +355,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 500);
+        $this->assertSame($response->getStatusCode(), 200);
     }
 
-    public function tesnotGetSingleEmojiNotExist()
+    public function testGetSingleEmojiNotExist()
     {
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
@@ -368,7 +370,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 500);
+        $result = ['message' => 'The requested Emoji is not found.'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 404);
     }
 
     public function tenostEditEmojiWithPut()
@@ -453,39 +457,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 200);
     }
 
-    public function tenostGetSingleEmojiReturnsEmojiWithStatusCode200()
-    {
-        //$emoji = Emoji::get()->first();
-        $env = Environment::mock([
-            'REQUEST_METHOD' => 'GET',
-            'REQUEST_URI'    => '/emojis/1',
-            'PATH_INFO'      => '/emojis',
-            ]);
-        $req = Request::createFromEnvironment($env);
-        $this->app->getContainer()['request'] = $req;
-        $response = $this->app->run(true);
-        $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 500);
-        //$this->assertSame($data[0]['id'], 1);
-        //$this->assertSame($data[0]['name'], );
-    }
-
-    public function tenostGetAllEmojiReturnEmojisWithStatusCode200()
-    {
-        //$emoji = Emoji::get();
-        $env = Environment::mock([
-            'REQUEST_METHOD' => 'GET',
-            'REQUEST_URI'    => '/emojis',
-            'PATH_INFO'      => '/emojis',
-        ]);
-        $req = Request::createFromEnvironment($env);
-        $this->app->getContainer()['request'] = $req;
-        $response = $this->app->run(true);
-        $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 500);
-    }
-
-    public function tesnotDeleteEmoji()
+    public function tesnottDeleteEmoji()
     {
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'DELETE',
@@ -497,6 +469,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
+        $result = ['message' => 'Emoji successfully deleted.'];
+        $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 200);
     }
 
