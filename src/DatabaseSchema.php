@@ -49,8 +49,8 @@ class DatabaseSchema
             Capsule::schema()->create('keywords', function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('emoji_id');
-                $this->string('keyword_name');
-                $this->timestamps();
+                $table->string('keyword_name');
+                $table->timestamps();
             });
         }
     }
