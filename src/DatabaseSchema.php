@@ -18,7 +18,7 @@ class DatabaseSchema
                 $table->string('fullname');
                 $table->string('username');
                 $table->string('password');
-                $teble->timestamps();
+                $table->timestamps();
             });
         }
     }
