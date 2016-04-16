@@ -223,7 +223,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'fullname'  => 'TestTester',
             'username'  => 'tester',
             'password'  => 'test'
-            [
+            ]
         );
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
