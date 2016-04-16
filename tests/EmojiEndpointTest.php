@@ -63,14 +63,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app = (new App("vfs://home/"))->get();
         $this->capsule = new Capsule();
         $this->schema = new DatabaseSchema();
-        $this->schema->createUsersTable();   
-        User::create(
-            [
-            'fullname'  => 'TestTester',
-            'username'  => 'tester',
-            'password'  => 'test'
-            ]
-        );
+        $this->schema->createUsersTable(); 
     }
 
     public function request($method, $path, $options = [])
@@ -105,7 +98,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return $request
      */
-    public function post($path, $options = [])
+    public function postIndex($path, $options = [])
     {
         $this->request('POST', $path, $options);
     }
@@ -119,7 +112,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      */
     public function testPostIndex()
     {
-        $this->post('/', ['ACCEPT' => 'application/json']);
+        $this->postIndex('/', ['ACCEPT' => 'application/json']);
         $this->assertEquals('404', $this->response->getStatusCode());
     }
 
@@ -163,13 +156,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testuserLogin()
     {
-        // User::create(
-        //     [
-        //     'fullname'  => 'TestTester',
-        //     'username'  => 'tester',
-        //     'password'  => 'test'
-        //     ]
-        // );
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
@@ -187,27 +173,39 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 200);
     }
 
-    public function testCreateUser()
+    private function populateUser()
     {
+        User::create([
+            'username' => 'tester',
+            'password' => 'test',
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
+    }
+
+
+    public function testCreateUser()
+    {   
+        User::truncate();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/register',
             'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
-            'PATH_INFO'      => '/auth',
-            ]);
-        $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody([
-            'fullname'  => 'Tester',
-            'username'  => 'tester',
-            'password'   => 'test',
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
         ]);
+
+        $body = [
+            'fullname' => 'john tester',
+            'username' => 'tester',
+            'password' => 'test',
+        ];
+
+        $req = Request::createFromEnvironment($env)->withParsedBody($body);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
-        $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 400);
-     }
+        $result = json_decode($response->getBody(), true);
+        $this->assertEquals($result['message'], 'User successfully created.');
+        $this->assertSame($response->getStatusCode(), 201);
+    }
     public function tesnotPostEmoji()
     {
         $env = Environment::mock([
@@ -233,14 +231,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     }
     public function testThatCorrectLoginCredentialWhereUsedToLogin()
     {
-        // $this->schema->createUsersTable();   
-        // User::create(
-        //     [
-        //     'fullname'  => 'TestTester',
-        //     'username'  => 'tester',
-        //     'password'  => 'test'
-        //     ]
-        // );
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
@@ -258,8 +248,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $token = ( (string) $response->getBody());
-    
-        $expect = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0NDAyOTU2NzMsImp0aSI6Ik1UUTBNREk1TlRZM013PT0iLCJuYmYiOjE0NDAyOTU2NzMsImV4cCI6MTQ0Mjg4NzY3MywiZGF0YSI6eyJ1c2VySWQiOjM3fX0.4YuqDyXlrHpKQDuP5quUX2XQTGwDqaThHTHAdVmJr1A';
+       
+        $expect = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0NDAyOTU2NzMsImp0aSI6Ik1UUTBNREk1TlRZM013PT0iLCJuYmYiOjE0NDAyOTU2NzMsImV4cCI6MTQ0Mjg4NzY3MywiZGF0YSI6eyJ1c2VySWQiOjF9fQ.iGP_Pwx2-WMDVodQcI5tcTWgh8LD21LwgQRFnH6IMmk';
         $this->assertEquals($expect, $token);
 
         $this->assertSame($response->getStatusCode(), 200);
