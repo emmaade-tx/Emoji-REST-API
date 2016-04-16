@@ -460,11 +460,18 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testuserLogoutWithToken()
     {
+        $env = Environment::mock([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI'    => '/auth/login',
+            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
+            'PATH_INFO'      => '/auth',
+        ]);
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
             'username' => 'tester',
             'password' => 'test',
         ]);
+
         $req = $req->withAttribute('issTime', 1440295673);
 
         $userData = $req->getParsedBody();
@@ -478,6 +485,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'CONTENT_TYPE'       => 'application/json',
             'HTTP_AUTHORIZATION' => $token,
             ]);
+
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
