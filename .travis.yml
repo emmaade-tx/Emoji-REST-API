@@ -17,7 +17,10 @@ before_script:
 
 before_install:
    - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
-   - mysql -e "CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, fullname VARCHAR(255), username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, UNIQUE('username'))" -uroot
+   - mysql -e "CREATE TABLE users
+    (
+      id INT(10) PRIMARY KEY AUTO_INCREMENT NOT NULL, fullname VARCHAR(255), username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL
+    )" -uroot
 
 install: travis_retry composer install --no-interaction --prefer-source
 
