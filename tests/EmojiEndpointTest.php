@@ -8,7 +8,6 @@
 namespace Tests;
 
 require __DIR__.'/../vendor/autoload.php';
-require_once 'TestUploadTables.php';
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use org\bovigo\vfs\vfsStream;
@@ -32,10 +31,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     protected $schema;
     protected $emoji;
     protected $user;
-    protected $registerErrorMessage;
-    protected $updateSuccessMessage;
     protected $envRootPath;
-    protected $uploadTables;
 
     public function setUp()
     {
@@ -65,7 +61,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         fclose($file);
 
         $this->app = (new App("vfs://home/"))->get();
-        $capsule = new Capsule();       
+        $this->capsule = new Capsule();
+        $this->schema = new DatabaseSchema();     
     }
 
     public function request($method, $path, $options = [])
@@ -217,7 +214,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     }
     public function testThatCorrectLoginCredentialWhereUsedToLogin()
     {
-        User::truncate();
+        $this->schema->createUsersTable();   
         User::create(
             [
             'fullname'  => 'TestTester',

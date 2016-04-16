@@ -8,19 +8,9 @@ use Illuminate\Database\Schema\Blueprint;
 class DatabaseSchema
 {
     /**
-     * Create needed tables in database.
-     */
-    public function createTables()
-    {
-        $this->createUsersTable();
-        $this->createEmojisTable();
-        $this->createKeywordsTable();
-    }
-
-    /**
      * Create users table
      */
-    private function createUsersTable()
+    public function createUsersTable()
     {
         if (!Capsule::schema()->hasTable('users')) {
             Capsule::schema()->create('users', function (Blueprint $table) {
