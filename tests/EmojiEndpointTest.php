@@ -44,9 +44,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'JWT_ALGORITHM = HS512',
             '[Database]',
             'driver = mysql',
-            'host=localhost',
-            'username=root',
-            'password=',
+            'host=localhost:33060',
+            'username=homestead',
+            'password=secret',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
@@ -319,6 +319,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testThatCorrectLoginCredentialWhereUsedToLogin()
     {
+        User::truncate();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
@@ -358,6 +359,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
+        $data = json_decode($response->getBody(), true);
+        $result = ['message' => 'Username or Password field not valid.'];
+        $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 400);
     }
 
@@ -374,7 +378,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
-    
         $data = json_decode($response->getBody(), true);
         $this->assertSame($response->getStatusCode(), 200);
     }
