@@ -67,7 +67,7 @@ $app->group('/', function () {
 |
 |--------------------------------------------------------------------------
 */
-$app->get('https://quiet-beyond-76266.herokuapp.com/emojis', 'EmojiController:getAllEmojis');
+$app->get('/emojis', 'EmojiController:getAllEmojis');
 
 /*
 |--------------------------------------------------------------------------
