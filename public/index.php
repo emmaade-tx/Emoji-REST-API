@@ -12,8 +12,8 @@ if (PHP_SAPI == 'cli-server') {
 // set timezone for timestamps etc
 date_default_timezone_set('UTC');
 
-require 'vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 // Run app
-$app = (new Demo\App('/'))->get();
+$app = (new Demo\App(__DIR__.'/../'))->get();
 $app->run();

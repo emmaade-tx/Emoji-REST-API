@@ -22,12 +22,12 @@ class App
      */
     public function __construct($path = null)
     {
-        $settings = require 'src/settings.php';
+        $settings = require __DIR__.'/../src/settings.php';
         $app = new \Slim\App($settings);
         // Set up dependencies
-        require 'src/dependencies.php';
+        require __DIR__.'/../src/dependencies.php';
         // Register routes
-        require 'src/routes.php';
+        require __DIR__.'/../src/routes.php';
         $this->app = $app;
         $this->capsule = new Capsule();
         $this->schema = new DatabaseSchema();
@@ -72,8 +72,8 @@ class App
      */
     public function loadEnv($path = null)
     {
-        $envPath = $path ? __DIR__.'/../' : $path;
-        $dotenv = new Dotenv($envPath);
+        $path = $path == null ? __DIR__ . '/../' : $path;
+        $dotenv = new Dotenv($path);
         $dotenv->load();
     }
 
