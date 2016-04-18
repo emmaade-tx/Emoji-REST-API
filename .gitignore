@@ -2,3 +2,4 @@
 /logs/*
 !/logs/README.md
 /public/index.php
+.DS_Store
