@@ -23,8 +23,7 @@ class AuthController
      */
     public function login($request, $response)
     {
-        $userData = $request->getParsedBody();
-
+        $userData         = $request->getParsedBody();
         $validateResponse = $this->validateUserData(['username', 'password'], $userData);
 
         if (is_array($validateResponse)) {
@@ -38,8 +37,7 @@ class AuthController
         }
 
         $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
-
-        $token = $this->generateToken($user->Id, $issTime);
+        $token   = $this->generateToken($user->Id, $issTime);
    
         return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
     }
@@ -53,7 +51,7 @@ class AuthController
      */
     private function generateToken($userId, $time = null)
     {
-        $time = $time == null ? time() : $time;
+        $time         = $time == null ? time() : $time;
         $appSecret    = getenv('APP_SECRET');
         $jwtAlgorithm = getenv('JWT_ALGORITHM');
         $timeIssued   = $time;
@@ -81,7 +79,7 @@ class AuthController
      */
     public function register($request, $response)
     {
-        $userData = $request->getParsedBody();
+        $userData         = $request->getParsedBody();
         $validateResponse = $this->validateUserData(['fullname', 'username', 'password'], $userData);
 
         if (is_array($validateResponse)) {
@@ -93,13 +91,13 @@ class AuthController
         }
 
         User::firstOrCreate(
-                [
-                    'fullname'   => $userData['fullname'],
-                    'username'   => strtolower($userData['username']),
-                    'password'   => password_hash($userData['password'], PASSWORD_DEFAULT),
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'updated_at' => Carbon::now()->toDateTimeString(),
-                ]);
+            [
+                'fullname'   => $userData['fullname'],
+                'username'   => strtolower($userData['username']),
+                'password'   => password_hash($userData['password'], PASSWORD_DEFAULT),
+                'created_at' => Carbon::now()->toDateTimeString(),
+                'updated_at' => Carbon::now()->toDateTimeString(),
+            ]);
 
         return $response->withJson(['message' => 'User successfully created.'], 201);
     }
@@ -114,7 +112,6 @@ class AuthController
     public function logout(Request $request, Response $response)
     {
         $user = $request->getAttribute('user');
-
         return $response->withJson(['message' => 'Logout successful'], 200);
     }
 
