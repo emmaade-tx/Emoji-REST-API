@@ -1,4 +1,3 @@
-**Emoji REST API**
 ==================
 
 |Coverage Status| |Build Status| |Scrutinizer Code Quality|
