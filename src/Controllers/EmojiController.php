@@ -106,7 +106,7 @@ class EmojiController
 
         $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
 
-        return $response->withJson($emoji->toArray(), 201);
+        return $response->withJson(['message' => 'Emoji has been created successfully'], 200);
     }
 
     /**

@@ -79,22 +79,28 @@ class AuthController
      */
     public function register($request, $response)
     {
-        $userData         = $request->getParsedBody();
-        $validateResponse = $this->validateUserData(['fullname', 'username', 'password'], $userData);
+        $requestParams    = $request->getParsedBody();
+        $validateUserData = $this->validateUserData(['fullname', 'username', 'password'], $requestParams);
 
-        if (is_array($validateResponse)) {
-            return $response->withJson($validateResponse, 400);
+        if (is_array($validateUserData)) {
+            return $response->withJson($validateUserData, 400);
         }
 
-        if (User::where('username', $userData['username'])->first()) {
+        $validateEmptyInput = $this->checkEmptyInput($requestParams['fullname'], $requestParams['username'], $requestParams['password']);
+
+        if (is_array($validateEmptyInput)) {
+            return $response->withJson($validateEmptyInput, 401);
+        }
+
+        if (User::where('username', $requestParams['username'])->first()) {
             return $response->withJson(['message' => 'Username already exist.'], 409);
         }
 
         User::firstOrCreate(
             [
-                'fullname'   => $userData['fullname'],
-                'username'   => strtolower($userData['username']),
-                'password'   => password_hash($userData['password'], PASSWORD_DEFAULT),
+                'fullname'   => $requestParams['fullname'],
+                'username'   => strtolower($requestParams['username']),
+                'password'   => password_hash($requestParams['password'], PASSWORD_DEFAULT),
                 'created_at' => Carbon::now()->toDateTimeString(),
                 'updated_at' => Carbon::now()->toDateTimeString(),
             ]);
@@ -111,7 +117,7 @@ class AuthController
      */
     public function logout(Request $request, Response $response)
     {
-        $user = $request->getAttribute('user');
+        $request->getAttribute('users');
         return $response->withJson(['message' => 'Logout successful'], 200);
     }
 
@@ -174,6 +180,25 @@ class AuthController
             if (!in_array($key, $expectedFields)) {
                 return ['message' => 'Unwanted fields must be removed'];
             }
+        }
+
+        return true;
+    }
+
+    /**
+     * This method checks for empty input from user.
+     *
+     * @param $inputName
+     * @param $inputChars
+     * @param $inputCategory
+     * @param $inputKeywords
+     *
+     * @return bool
+     */
+    public function checkEmptyInput($inputFullname, $inputUsername, $inputPassword)
+    {
+        if (empty($inputFullname) || empty($inputUsername) || empty($inputPassword)) {
+            return ['message' => 'All fields must be provided.'];
         }
 
         return true;
