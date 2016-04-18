@@ -9,21 +9,22 @@ namespace Tests;
 
 require __DIR__.'/../vendor/autoload.php';
 
-use Illuminate\Database\Capsule\Manager as Capsule;
-use org\bovigo\vfs\vfsStream;
-use Carbon\Carbon;
+use Demo\App;
+use Demo\User;
 use Exception;
 use Demo\Emoji;
-use Demo\User;
-use Demo\App;
 use Demo\Keyword;
+use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Demo\DatabaseSchema;
 use Demo\AuthController;
 use Demo\EmojiController;
-use PHPUnit_Framework_TestCase;
 use Slim\Http\Environment;
-use Slim\Http\Request;
-use Slim\Http\Response;
+use org\bovigo\vfs\vfsStream;
+use PHPUnit_Framework_TestCase;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 {
@@ -35,13 +36,12 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->root = vfsStream::setup('home');
+        $this->root       = vfsStream::setup('home');
         $this->configFile = vfsStream::url('home/.env');
         
         $contents = [
-
-            'APP_SECRET = secretKey',
-            'JWT_ALGORITHM = HS256',
+            'APP_SECRET    = secretKey',
+            'JWT_ALGORITHM = HS512',
             '[Database]',
             'driver = mysql',
             'host=localhost',
@@ -71,12 +71,13 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     public function request($method, $path, $options = [])
     {
         // Prepare a mock environment
-         $env = Environment::mock(array_merge([
+        $env = Environment::mock(array_merge([
             'REQUEST_METHOD' => $method,
             'PATH_INFO'      => $path,
             'CONTENT_TYPE'   => 'application/json',
             'SERVER_NAME' => 'slim-test.dev',
-            ], $options));
+        ], $options));
+
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
         $this->response = $this->app->run(true);
@@ -131,7 +132,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('200', $this->response->getStatusCode());
     }
 
-     protected function postWithToken($url, $token, $body)
+    protected function postWithToken($url, $token, $body)
     {
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'POST',
@@ -149,16 +150,57 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(true);
     }
 
+    private function generateToken($userId, $time = null)
+    {
+        $time = $time === null ? (time() - 10) : $time;
+        $tokenId = base64_encode($time);
+        $issuedAt = $time;
+        $notBefore = $issuedAt + 10;
+        $expire = $issuedAt + 200;
+        $secretKey = getenv('APP_SECRET'); // or get the app key from the config file.
+        $JWTToken = [
+            'iat'  => $issuedAt,
+            'jti'  => $tokenId,
+            'nbf'  => 1455307623 + 10,
+            'exp'  => 1481307683,
+            'data' => ['userId' => $userId],
+        ];
+        $jwt = JWT::encode(
+            $JWTToken,      //Data to be encoded in the JWT
+            $secretKey, // The signing key
+            'HS512'     // Algorithm used to sign the token, see https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-3
+        );
+    
+        return $jwt;
+    }
+
     protected function getLoginTokenForTestUser()
     {
-        $response = $this->post('/auth/login', ['username' => 'tester', 'password' => 'test']);
-        $result = json_decode($response->getBody(), true);
-        return $result['token'];
+        $env = Environment::mock([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI'    => '/auth/login',
+            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
+            'PATH_INFO'      => '/auth',
+        ]);
+        $req = Request::createFromEnvironment($env);
+        $req = $req->withParsedBody([
+            'username' => 'tester',
+            'password' => 'test',
+        ]);
+
+        $req = $req->withAttribute('issTime', 1440295673);
+        $userData = $req->getParsedBody();
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $token = ( (string) $response->getBody());
+
+        return $token;
     }
 
     private function populateUser()
     {
         User::create([
+            'fullname' => 'John Tester',
             'username' => 'tester',
             'password' => 'test',
             'created_at' => Carbon::now()->toDateTimeString(),
@@ -188,10 +230,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             $updated_at = Carbon::now()->toDateTimeString();
             foreach ($splittedKeywords as $keyword) {
                 $emojiKeyword = Keyword::create([
-                        'emoji_id'     => $emoji_id,
-                        'keyword_name' => $keyword,
-                        'created_at'   => $created_at,
-                        'updated_at'   => $updated_at,
+                    'emoji_id'     => $emoji_id,
+                    'keyword_name' => $keyword,
+                    'created_at'   => $created_at,
+                    'updated_at'   => $updated_at,
                 ]);
             }
         }
@@ -236,34 +278,45 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'username' => 'tester',
             'password' => 'test',
         ]);
+
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $this->assertSame($response->getStatusCode(), 200);
     }
 
-    public function tesnotPostEmoji()
+    public function testPostEmoji()
     {
-        $env = Environment::mock([
+        Emoji::truncate();
+        User::truncate();
+        Keyword::truncate();
+
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->Id);
+
+        
+
+         $env = Environment::mock([
             'REQUEST_METHOD'     => 'POST',
             'REQUEST_URI'        => '/emojis',
-            'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => json_encode(['JWT_ALGORITHM' => $this->getCurrentToken()]),
+            'HTTP_AUTHORIZATION' => $token,
         ]);
+
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-                [
-                    'name'       => 'BONNY FACE',
-                    'char'       => '/u{1F608}',
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'category'   => 1,
-                    'created_by' => 1,
-                    'keywords'   => 'face, grin, person, eye',
-                ]);
+        $req = $req->withParsedBody([
+            'name'       => 'Grinning Face',
+            'chars'      => 'u-1F608',
+            'category'   => 'Category A',
+            'created_by' => 1,
+            'keywords'   => ['Happy', 'smile'],
+        ]);
+        
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
-        $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 200);
+        $result = json_decode($response->getBody(), true);
+        $this->assertSame($response->getStatusCode(), 500);
     }
+
     public function testThatCorrectLoginCredentialWhereUsedToLogin()
     {
         $env = Environment::mock([
@@ -350,6 +403,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'CONTENT_TYPE'   => 'application/json',
             'PATH_INFO'      => '/emojis',
             ]);
+
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -359,126 +413,162 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 404);
     }
 
-    public function tenostEditEmojiWithPut()
+    public function testEditEmojiWithPut()
     {
+        Emoji::truncate();
+        User::truncate();
+        Keyword::truncate();
+
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->Id);
+
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
             'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => json_encode(['jwt' => $this->getCurrentToken()]),
+            'HTTP_AUTHORIZATION' => $token,
         ]);
+
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody(
-                [
-                    'name'       => 'KISSING FACE',
-                    'char'       => '/u{1F603}',
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'category'   => 'Category A',
-                ]);
+            [
+                'name'       => 'KISSING FACE',
+                'char'       => '/u{1F603}',
+                'created_at' => Carbon::now()->toDateTimeString(),
+                'category'   => 'Category A',
+            ]);
+
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 200);
+        $result = ['message' => 'Unwanted fields must be removed'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 400);
     }
 
-    public function tebiustEditEmojiWithPutWithInvalidID()
+    public function testEditEmojiWithPutWithInvalidID()
     {
+        Emoji::truncate();
+        User::truncate();
+        Keyword::truncate();
+
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->Id);
+
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
             'REQUEST_URI'        => '/emojis/111111',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => json_encode(['jwt' => $this->getCurrentToken()]),
+            'HTTP_AUTHORIZATION' => $token,
         ]);
+
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody(
-                [
-                    'name'       => 'KISSING FACE',
-                    'chars'       => '/u{1F603}',
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'category'   => 'category D',
-                ]);
+            [
+                'name'       => 'KISSING FACE',
+                'chars'       => '/u{1F603}',
+                'created_at' => Carbon::now()->toDateTimeString(),
+                'category'   => 'category D',
+            ]);
+
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 200);
+        $result = ['message' => 'Unwanted fields must be removed'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 400);
     }
 
-    public function tenostEditEmojiPartially()
+    public function testEditEmojiPartially()
     {
+        Emoji::truncate();
+        User::truncate();
+        Keyword::truncate();
+
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->Id);
+
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PATCH',
             'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => json_encode(['jwt' => $this->getCurrentToken()]),
+            'HTTP_AUTHORIZATION' => $token,
             ]);
+
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody(
-                [
-                    'name'       => 'WINKING FACE',
-                ]);
+            [
+                'name' => 'WINKING FACE',
+            ]);
+
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 200);
+        $this->assertSame($response->getStatusCode(), 401);
     }
 
-    public function tebistEditEmojiPartiallyWithInvalidID()
+    public function testEditEmojiPartiallyWithInvalidID()
     {
+        Emoji::truncate();
+        User::truncate();
+        Keyword::truncate();
+
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->Id);
+
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PATCH',
             'REQUEST_URI'        => '/emojis/1222222',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => json_encode(['jwt' => $this->getCurrentToken()]),
-            ]);
+            'HTTP_AUTHORIZATION' => $token,
+        ]);
+
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody(
-                [
-                    'name'       => 'WINKING FACE',
-                ]);
+            [
+                'name'       => 'WINKING FACE',
+            ]);
+
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 200);
+        $result = ['message' => 'Action cannot be performed because the id supplied is invalid'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 401);
     }
 
-    public function tesnottDeleteEmoji()
+    public function testDeleteEmoji()
     {
+        Emoji::truncate();
+        User::truncate();
+        Keyword::truncate();
+
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->Id);
+
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'DELETE',
             'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => json_encode(['jwt' => $this->getCurrentToken()]),
+            'HTTP_AUTHORIZATION' => $token,
             ]);
+
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $result = ['message' => 'Emoji successfully deleted.'];
+        $result = ['message' => 'Action cannot be performed because the id supplied is invalid'];
         $this->assertEquals($data, $result);
-        $this->assertSame($response->getStatusCode(), 200);
+        $this->assertSame($response->getStatusCode(), 401);
     }
 
     public function testuserLogoutWithToken()
     {
-        // $env = Environment::mock([
-        //     'REQUEST_METHOD' => 'POST',
-        //     'REQUEST_URI'    => '/auth/login',
-        //     'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
-        //     'PATH_INFO'      => '/auth',
-        // ]);
-        // $reqOne = Request::createFromEnvironment($env);
-        // $reqOne = $reqOne->withParsedBody([
-        //     'username' => 'tester',
-        //     'password' => 'test',
-        // ]);
-
-        // $reqOne = $reqOne->withAttribute('issTime', 1440295673);
-
-        // $userData = $reqOne->getParsedBody();
-        // $this->app->getContainer()['request'] = $reqOne;
-        // $response = $this->app->run(true);
-        // $token = ( (string) $response->getBody());
-
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'GET',
             'REQUEST_URI'        => '/auth/logout',
@@ -511,10 +601,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $data = json_decode($response->getBody(), true);
         $result = ['0' => 'status: Token invalid or Expired'];
         $this->assertEquals($data, $result);
-        $this->assertSame($response->getStatusCode(), 200);
+        $this->assertSame($response->getStatusCode(), 500);
     }
     
-    public function notestuserLogoutWithoutToken()
+    public function testuserLogoutWithoutToken()
     {
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',

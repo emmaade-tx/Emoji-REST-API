@@ -6,6 +6,7 @@
  */
 namespace Demo;
 
+use Exception;
 use Dotenv\Dotenv;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
@@ -42,15 +43,16 @@ class App
     private function setUpDatabaseManager()
     {
         //Register the database connection with Eloquent
-        $config =   [
-                            'driver'    => getenv('driver'),
-                            'host'      => getenv('host'),
-                            'database'  => getenv('database'),
-                            'username'  => getenv('username'),
-                            'password'  => getenv('password'),
-                            'charset'   => 'utf8',
-                            'collation' => 'utf8_unicode_ci',
-                    ];
+        $config = [
+            'driver'    => getenv('driver'),
+            'host'      => getenv('host'),
+            'database'  => getenv('database'),
+            'username'  => getenv('username'),
+            'password'  => getenv('password'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+        ];
+        
         $this->capsule->addConnection($config);
         $this->capsule->setAsGlobal();
         $this->capsule->bootEloquent();
@@ -63,7 +65,7 @@ class App
     {
         try {
             $this->schema->createUsersTable();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // This exception would be caught by the global exception handler.
         }
     }

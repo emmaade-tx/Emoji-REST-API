@@ -22,22 +22,20 @@ class AuthMiddleware
      */
     public function __invoke($request, $response, $next)
     {
-        $authHeader = $request->getHeader('HTTP_AUTHORIZATION');
-
+       $authHeader = $request->getHeader('HTTP_AUTHORIZATION');
 
         try {
-            if (!empty($authHeader)) {
-                $secretKey = getenv('APP_SECRET');
-                $jwt = $authHeader[0];
-                //decode the JWT using the key from config
-                $decodedToken = JWT::decode($jwt, $secretKey, ['HS256']);
+           if (!empty($authHeader)) {
+                $secretKey    = getenv('APP_SECRET');
+                $jwt          = $authHeader[0];    
+                $decodedToken = JWT::decode($jwt, $secretKey, ['HS512']);
 
                 return $next($request, $response);
             }
         } catch (Exception $e) {
-            return $response->withJson(['status: Token invalid or Expired']);
+            return $response->withJson(['status: Token invalid or Expired'], 500);
         }
 
         return $response->withJson(['message' => 'User unauthorized due to invalid token'], 401);
-    }
+   }
 }

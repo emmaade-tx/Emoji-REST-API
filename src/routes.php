@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 /*
 |--------------------------------------------------------------------------
-| This verb returns error 200
+| This verb returns status code 200
 |
 | @param $request
 |
@@ -26,7 +26,7 @@ $app->get('/', function (Request $request, Response $response) {
 
 /*
 |--------------------------------------------------------------------------
-| This verb returns error 404
+| This verb returns status code 404
 |
 | @param $request
 |
@@ -41,7 +41,7 @@ $app->post('/', function (Request $request, Response $response) {
 
 /*
 |--------------------------------------------------------------------------
-| These endpoints groups route that requires Middleware together
+| These endpoints groups route that requires Middleware
 |
 | @param $request
 |
@@ -54,19 +54,8 @@ $app->group('/', function () {
     $this->patch('emojis/{id}', 'EmojiController:updateEmojiByPatch');
     $this->put('emojis/{id}', 'EmojiController:updateEmojiByPut');
     $this->delete('emojis/{id}', 'EmojiController:deleteEmoji');
+    $this->get('auth/logout', 'AuthController:logout');
 })->add('AuthMiddleware');
-
-/*
-|--------------------------------------------------------------------------
-| These verb logs out a user
-|
-| @param $request
-|
-| @param $request
-|
-|--------------------------------------------------------------------------
-*/
-$app->get('/auth/logout', 'AuthController:logout')->add('AuthMiddleware');
 
 /*
 |--------------------------------------------------------------------------
