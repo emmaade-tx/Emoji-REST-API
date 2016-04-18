@@ -2,7 +2,7 @@
 ================
 [![Coverage Status](https://coveralls.io/repos/github/andela-araimi/Emoji-REST-API/badge.svg?branch=master)](https://coveralls.io/github/andela-araimi/Emoji-REST-API?branch=master)  [![Build Status](https://travis-ci.org/andela-araimi/Emoji-REST-API.svg?branch=master)](https://travis-ci.org/andela-araimi/Emoji-REST-API) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/andela-araimi/Emoji-REST-API/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/andela-araimi/Emoji-REST-API/?branch=master)
 ----------
-This is a simple RESTFul API rendering emoji service to users. It was built with PHP and implements the Slim framework and JSON web token (JWT) for user authentication. To view the full documentation, visit this [link](http://emoji-restfull-api.readthedocs.org/en/latest/).
+This is a simple RESTFul API rendering emoji service to users. It was built with PHP and implements the Slim framework and JSON web token (JWT) for user authentication.
 
 **Installation**
 -------
