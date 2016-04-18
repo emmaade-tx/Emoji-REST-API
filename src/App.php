@@ -22,12 +22,12 @@ class App
      */
     public function __construct($path = null)
     {
-        $settings = require __DIR__.'/../src/settings.php';
+        $settings = require  __DIR__.'/settings.php';
         $app = new \Slim\App($settings);
         // Set up dependencies
-        require __DIR__.'/../src/dependencies.php';
+        require  __DIR__.'/dependencies.php';
         // Register routes
-        require __DIR__.'/../src/routes.php';
+        require  __DIR__.'/routes.php';
         $this->app = $app;
         $this->capsule = new Capsule();
         $this->schema = new DatabaseSchema();
