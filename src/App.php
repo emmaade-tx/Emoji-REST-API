@@ -22,7 +22,6 @@ class App
      */
     public function __construct($path = null)
     {
-        // dd($path);
         $settings = require __DIR__.'/../src/settings.php';
         $app = new \Slim\App($settings);
         // Set up dependencies
@@ -52,7 +51,7 @@ class App
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
         ];
-        
+
         $this->capsule->addConnection($config);
         $this->capsule->setAsGlobal();
         $this->capsule->bootEloquent();
@@ -63,11 +62,9 @@ class App
      */
     public function setupDatabaseSchema()
     {
-        try {
-            $this->schema->createUsersTable();
-        } catch (Exception $e) {
-            // This exception would be caught by the global exception handler.
-        }
+        $this->schema->createUsersTable();
+        $this->schema->createEmojisTable();
+        $this->schema->createKeywordsTable();
     }
 
     /**
