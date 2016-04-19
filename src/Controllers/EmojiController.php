@@ -169,7 +169,7 @@ class EmojiController
         }
 
         if (is_null($this->getTheOwner($request, $response, $args)->first())) {
-            return ['message' => 'Action cannot be performed because you are not the creator'];
+            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator'], 400);
         }
 
         Emoji::where('id', '=', $args['id'])
@@ -204,7 +204,7 @@ class EmojiController
         }
 
         if (is_null($this->getTheOwner($request, $response, $args)->first())) {
-            return ['message' => 'Action cannot be performed because you are not the creator'];
+            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator'], 400);
         }
 
         Emoji::where('id', '=', $args['id'])
@@ -231,7 +231,7 @@ class EmojiController
         }
 
         if (is_null($this->getTheOwner($request, $response, $args)->first())) {
-            return ['message' => 'Action cannot be performed because you are not the creator'];
+            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator'], 400);
         }
 
         Emoji::where('id', '=', $args['id'])->delete();

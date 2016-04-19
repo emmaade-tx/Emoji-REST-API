@@ -49,7 +49,8 @@ class AuthController
      *
      * @return string
      */
-    private function generateToken($username, $time = null)
+
+    private function generateToken($userId)
     {
         $time         = $time == null ? time() : $time;
         $appSecret    = getenv('APP_SECRET');
