@@ -154,6 +154,7 @@ class EmojiController
      */
     public function updateEmojiByPatch($request, $response, $args)
     {
+        $emoji            = Emoji::find($args['id']);
         $updateParams     = $request->getParsedBody();
         $validateUserData = $this->authController->validateUserData(['name'], $updateParams);
        
@@ -165,6 +166,10 @@ class EmojiController
 
         if (is_array($validateArgs)) {
             return $response->withJson($validateArgs, 401);
+        }
+
+        if (is_null($this->getTheOwner($request, $response, $args)->first())) {
+            return ['message' => 'Action cannot be performed because you are not the creator'];
         }
 
         Emoji::where('id', '=', $args['id'])
@@ -184,7 +189,8 @@ class EmojiController
      */
     public function updateEmojiByPut($request, $response, $args)
     {
-        $updateParams = $request->getParsedBody();
+        $emoji            = Emoji::find($args['id']);
+        $updateParams     = $request->getParsedBody();
         $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category'], $updateParams);
        
         if (is_array($validateUserData)) {
@@ -195,6 +201,10 @@ class EmojiController
 
         if (is_array($validateArgs)) {
             return $response->withJson($validateArgs, 401);
+        }
+
+        if (is_null($this->getTheOwner($request, $response, $args)->first())) {
+            return ['message' => 'Action cannot be performed because you are not the creator'];
         }
 
         Emoji::where('id', '=', $args['id'])
@@ -214,9 +224,14 @@ class EmojiController
      */
     public function deleteEmoji($request, $response, $args)
     {
+        $emoji        = Emoji::find($args['id']);
         $validateArgs = $this->validateArgs($request, $response, $args);
         if (is_array($validateArgs)) {
             return $response->withJson($validateArgs, 401);
+        }
+
+        if (is_null($this->getTheOwner($request, $response, $args)->first())) {
+            return ['message' => 'Action cannot be performed because you are not the creator'];
         }
 
         Emoji::where('id', '=', $args['id'])->delete();
@@ -356,10 +371,6 @@ class EmojiController
         
         if (count($emoji) < 1) {
             return ['message' => 'Action cannot be performed because the id supplied is invalid'];
-        }
-
-        if (is_null($this->getTheOwner($request, $response, $args)->first())) {
-            return ['message' => 'Action cannot be performed because you are not the creator'];
         }
 
         return true;
