@@ -96,7 +96,7 @@ class AuthController
             return $response->withJson(['message' => 'Username already exist.'], 409);
         }
 
-        User::firstOrCreate(
+        User::create(
             [
                 'fullname'   => $requestParams['fullname'],
                 'username'   => strtolower($requestParams['username']),

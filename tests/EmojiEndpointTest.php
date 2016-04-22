@@ -1,4 +1,4 @@
-<?php
+
 
 /**
  * @author: Raimi Ademola <ademola.raimi@andela.com>
@@ -6,8 +6,6 @@
  */
 
 namespace Tests;
-
-require __DIR__.'/../vendor/autoload.php';
 
 use Demo\App;
 use Demo\User;
@@ -44,9 +42,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'JWT_ALGORITHM = HS512',
             '[Database]',
             'driver = mysql',
-            'host=localhost',
-            'username=root',
-            'password=',
+            'host=localhost:33060',
+            'username=homestead',
+            'password=secret',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
