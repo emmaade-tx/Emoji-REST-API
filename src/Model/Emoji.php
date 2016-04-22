@@ -4,7 +4,6 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
 namespace Demo;
 
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +25,6 @@ class Emoji extends Model
      */
     public function keywords()
     {
-        return $this->hasMany('Demo\Keyword', 'emoji_id', 'Id')->select(['emoji_id', 'keyword_name']);
+        return $this->hasMany('Demo\Keyword', 'emoji_id', 'id')->select(['emoji_id', 'keyword_name']);
     }
 }

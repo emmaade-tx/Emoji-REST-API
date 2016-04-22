@@ -4,7 +4,6 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
 namespace Demo;
 
 use Illuminate\Database\Eloquent\Model;

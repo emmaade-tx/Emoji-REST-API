@@ -4,16 +4,14 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
 namespace Demo;
 
-use Demo\AuthMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /*
 |--------------------------------------------------------------------------
-| This verb returns error 200
+| This verb returns status code 200
 |
 | @param $request
 |
@@ -28,7 +26,7 @@ $app->get('/', function (Request $request, Response $response) {
 
 /*
 |--------------------------------------------------------------------------
-| This verb returns error 404
+| This verb returns status code 404
 |
 | @param $request
 |
@@ -56,20 +54,8 @@ $app->group('/', function () {
     $this->patch('emojis/{id}', 'EmojiController:updateEmojiByPatch');
     $this->put('emojis/{id}', 'EmojiController:updateEmojiByPut');
     $this->delete('emojis/{id}', 'EmojiController:deleteEmoji');
+    $this->get('auth/logout', 'AuthController:logout');
 })->add('AuthMiddleware');
-
-
-/*
-|--------------------------------------------------------------------------
-| These verb logs out a user
-|
-| @param $request
-|
-| @param $request
-|
-|--------------------------------------------------------------------------
-*/
-$app->get('/auth/logout', 'AuthController:logout')->add('AuthMiddleware');
 
 /*
 |--------------------------------------------------------------------------
@@ -112,10 +98,6 @@ $app->post('/auth/login', 'AuthController:login');
 | This verb registers a new user
 |
 | @param $request
-|
-| @param $args
-|
-| @param $emoji
 |
 | @param $request
 |

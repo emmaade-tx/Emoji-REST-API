@@ -4,35 +4,36 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
 namespace Demo;
 
+use Exception;
 use Dotenv\Dotenv;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Schema\Blueprint;
 
 class App
 {
-    /**
-     * Stores an instance of the Slim application.
-     *
-     * @var \Slim\App
-     */
     protected $app;
+    protected $schema;
+    protected $capsule;
 
+    /**
+     * This is a constructor; a default method  that will be called automatically during slim app instantiation.
+     */
     public function __construct($path = null)
     {
-        $settings = require __DIR__.'/../src/settings.php';
+        $settings = require  __DIR__.'/settings.php';
         $app = new \Slim\App($settings);
         // Set up dependencies
-        require __DIR__.'/../src/dependencies.php';
+        require  __DIR__.'/dependencies.php';
         // Register routes
-        require __DIR__.'/../src/routes.php';
-        $capsule = new Capsule();
-
-        $this->loadEnv($path);
+        require  __DIR__.'/routes.php';
         $this->app = $app;
-        $this->capsule = $capsule;
+        $this->capsule = new Capsule();
+        $this->schema = new DatabaseSchema();
+        $this->loadEnv($path); 
         $this->setUpDatabaseManager();
+        $this->setupDatabaseSchema();
     }
 
     /**
@@ -41,18 +42,29 @@ class App
     private function setUpDatabaseManager()
     {
         //Register the database connection with Eloquent
-        $this->capsule->addConnection(
-            [
-                'driver'    => getenv('driver'),
-                'host'      => getenv('host'),
-                'database'  => getenv('database'),
-                'username'  => getenv('username'),
-                'password'  => getenv('password'),
-                'charset'   => 'utf8',
-                'collation' => 'utf8_unicode_ci',
-            ]);
+        $config = [
+            'driver'    => getenv('driver'),
+            'host'      => getenv('host'),
+            'database'  => getenv('database'),
+            'username'  => getenv('username'),
+            'password'  => getenv('password'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+        ];
+
+        $this->capsule->addConnection($config);
         $this->capsule->setAsGlobal();
         $this->capsule->bootEloquent();
+    }
+
+    /**
+     * Create necessary database tables needed in the application.
+     */
+    public function setupDatabaseSchema()
+    {
+        $this->schema->createUsersTable();
+        $this->schema->createEmojisTable();
+        $this->schema->createKeywordsTable();
     }
 
     /**
@@ -60,8 +72,8 @@ class App
      */
     public function loadEnv($path = null)
     {
-        $envPath = $path == null ? __DIR__.'/../' : $path;
-        $dotenv = new Dotenv($envPath);
+        $path = $path == null ? __DIR__ . '/../' : $path;
+        $dotenv = new Dotenv($path);
         $dotenv->load();
     }
 
