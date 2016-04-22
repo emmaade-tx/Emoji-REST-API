@@ -109,7 +109,6 @@ class EmojiController
      */
     public function CreateEmoji($request, $response, $requestParams)
     {
-        //dd('I love this');
         $requestParams    = $request->getParsedBody();
         $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
 

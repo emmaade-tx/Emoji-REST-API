@@ -40,7 +40,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'APP_SECRET    = secretKey',
             'JWT_ALGORITHM = HS512',
             '[Database]',
-            'driver=mysql',
+            'driver = mysql',
             'host=localhost:33060',
             'username=homestead',
             'password=secret',
