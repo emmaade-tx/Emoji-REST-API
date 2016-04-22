@@ -4,7 +4,6 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
 namespace Demo;
 
 use Carbon\Carbon;
@@ -20,12 +19,11 @@ class AuthController
      * @param Slim\Http\Request $request
      * @param Slim\Http\Response $response
      *
-     * @return Slim\Http\Response
+     * @return json response
      */
     public function login($request, $response)
     {
-        $userData = $request->getParsedBody();
-
+        $userData         = $request->getParsedBody();
         $validateResponse = $this->validateUserData(['username', 'password'], $userData);
 
         if (is_array($validateResponse)) {
@@ -38,8 +36,9 @@ class AuthController
             return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
         }
 
-        $token = $this->generateToken($user->Id);
-
+        $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
+        $token   = $this->generateToken($user->id, $issTime);
+   
         return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
     }
 
@@ -50,19 +49,20 @@ class AuthController
      *
      * @return string
      */
-    private function generateToken($userId)
+    private function generateToken($userId, $time = null)
     {
-        $appSecret = getenv('APP_SECRET');
+        $time         = $time == null ? time() : $time;
+        $appSecret    = getenv('APP_SECRET');
         $jwtAlgorithm = getenv('JWT_ALGORITHM');
-        $timeIssued = time();
-        $tokenId = base64_encode(mcrypt_create_iv(32));
+        $timeIssued   = $time;
+        $tokenId      = base64_encode($time);
         $token = [
-            'iat'  => $timeIssued,   // Issued at: time when the token was generated
-            'jti'  => $tokenId,          // Json Token Id: an unique identifier for the token
-            'nbf'  => $timeIssued, //Not before time
-            'exp'  => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
-            'data' => [                  // Data related to the signer user
-            'userId'   => $userId, // userid from the users table
+            'iat'     => $timeIssued,   // Issued at: time when the token was generated
+            'jti'     => $tokenId,          // Json Token Id: an unique identifier for the token
+            'nbf'     => $timeIssued, //Not before time
+            'exp'     => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
+            'data'    => [                  // Data related to the signer user
+                'userId'  => $userId, // userid from the users tableu;
             ],
         ];
 
@@ -75,27 +75,35 @@ class AuthController
      * @param Slim\Http\Request  $request
      * @param Slim\Http\Response $response
      *
-     * @return Slim\Http\Response
+     * @return json response
      */
     public function register($request, $response)
     {
-        $userData = $request->getParsedBody();
-        $validateResponse = $this->validateUserData(['fullname', 'username', 'password'], $userData);
-        if (is_array($validateResponse)) {
-            return $response->withJson($validateResponse, 400);
+        $requestParams    = $request->getParsedBody();
+        $validateUserData = $this->validateUserData(['fullname', 'username', 'password'], $requestParams);
+
+        if (is_array($validateUserData)) {
+            return $response->withJson($validateUserData, 400);
         }
 
-        if (User::where('username', $userData['username'])->first()) {
+        $validateEmptyInput = $this->checkEmptyInput($requestParams['fullname'], $requestParams['username'], $requestParams['password']);
+
+        if (is_array($validateEmptyInput)) {
+            return $response->withJson($validateEmptyInput, 401);
+        }
+
+        if (User::where('username', $requestParams['username'])->first()) {
             return $response->withJson(['message' => 'Username already exist.'], 409);
         }
+
         User::firstOrCreate(
-                [
-                    'fullname'   => $userData['fullname'],
-                    'username'   => strtolower($userData['username']),
-                    'password'   => password_hash($userData['password'], PASSWORD_DEFAULT),
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'updated_at' => Carbon::now()->toDateTimeString(),
-                ]);
+            [
+                'fullname'   => $requestParams['fullname'],
+                'username'   => strtolower($requestParams['username']),
+                'password'   => password_hash($requestParams['password'], PASSWORD_DEFAULT),
+                'created_at' => Carbon::now()->toDateTimeString(),
+                'updated_at' => Carbon::now()->toDateTimeString(),
+            ]);
 
         return $response->withJson(['message' => 'User successfully created.'], 201);
     }
@@ -105,12 +113,11 @@ class AuthController
      *
      * @param $args logout
      *
-     * @return $response
+     * @return json response
      */
     public function logout(Request $request, Response $response)
     {
-        $user = $request->getAttribute('user');
-
+        $request->getAttribute('users');
         return $response->withJson(['message' => 'Logout successful'], 200);
     }
 
@@ -125,6 +132,7 @@ class AuthController
     public function authenticate($username, $password)
     {
         $user = User::where('username', $username)->get();
+
         if ($user->isEmpty()) {
             return false;
         }
@@ -155,6 +163,7 @@ class AuthController
             $tableFields[] = $key;
             $tableValues[] = $val;
         }
+
         $result = array_diff($expectedFields, $tableFields);
 
         if (count($result) > 0 && empty($userData)) {
@@ -171,6 +180,25 @@ class AuthController
             if (!in_array($key, $expectedFields)) {
                 return ['message' => 'Unwanted fields must be removed'];
             }
+        }
+
+        return true;
+    }
+
+    /**
+     * This method checks for empty input from user.
+     *
+     * @param $inputName
+     * @param $inputChars
+     * @param $inputCategory
+     * @param $inputKeywords
+     *
+     * @return bool
+     */
+    public function checkEmptyInput($inputFullname, $inputUsername, $inputPassword)
+    {
+        if (empty($inputFullname) || empty($inputUsername) || empty($inputPassword)) {
+            return ['message' => 'All fields must be provided.'];
         }
 
         return true;

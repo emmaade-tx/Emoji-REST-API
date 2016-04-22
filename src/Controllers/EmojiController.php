@@ -4,40 +4,35 @@
  * @author: Raimi Ademola <ademola.raimi@andela.com>
  * @copyright: 2016 Andela
  */
-
-/**
- * @author: Raimi Ademola <ademola.raimi@andela.com>
- * @copyright: 2016 Andela
- */
-
 namespace Demo;
 
+
+use Exception;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
-use Exception;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class EmojiController
 {
     public $authController;
-    public $app;
 
+    /**
+     * This is a constructor; a default method  that will be called automatically during class instantiation.
+     */
     public function __construct()
     {
         $this->authController = new AuthController();
-        $this->app = new app();
     }
 
     /**
-     * @route GET /emojis
+     * Get all emojis.
      *
-     * @method  emojis (GET) Return all records of emojis from database.
+     * @param Slim\Http\Request  $request
+     * @param Slim\Http\Response $response
+     * @param array              $args
      *
-     * @requiredParams none
-     * @queryParams none
-     *
-     * @return JSON List of all emojis
+     * @return Slim\Http\Response
      */
     public function getAllEmojis($request, $response, $args)
     {
@@ -62,6 +57,7 @@ class EmojiController
     public function getSingleEmoji($request, $response, $args)
     {
         $emoji = Emoji::with('keywords', 'created_by')->find($args['id']);
+
         if (count($emoji) < 1) {
             return $response->withJson(['message' => 'The requested Emoji is not found.'], 404);
         }
@@ -80,21 +76,23 @@ class EmojiController
      */
     public function CreateEmoji($request, $response, $requestParams)
     {
-        $requestParams = $request->getParsedBody();
+        $requestParams     = $request->getParsedBody();
+        $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
 
-        $validateResponse = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
+        if (is_array($validateUserData)) {
+            return $response->withJson($validateUserData, 400);
+        }
+        
+        $validateEmptyInput = $this->checkEmptyInput($requestParams['name'], $requestParams['chars'], $requestParams['category'], $requestParams['keywords']);
 
-        if (is_array($validateResponse)) {
-            return $response->withJson($validateResponse, 400);
+        if (is_array($validateEmptyInput)) {
+            return $response->withJson($validateEmptyInput, 401);
         }
 
-        if (empty($requestParams['name']) || empty($requestParams['chars']) || empty($requestParams['category']) || empty($requestParams['keywords'])) {
+        $validateEmojiDuplicate = $this->checkDuplicateEmoji($requestParams['name'], $requestParams['chars']);
 
-            return $response->withJson(['message' => 'All fields must be provided.'], 401);
-        }
-
-        if (Capsule::table('emojis')->where('name', '=', strtolower($requestParams['name']))->get() || Capsule::table('emojis')->where('chars', '=', $requestParams['chars'])) {
-             return $response->withJson(['message' => 'The emoji already exist in the database.'], 401);
+        if (is_array($validateEmojiDuplicate)) {
+            return $response->withJson($validateEmojiDuplicate, 400);
         }
 
         $emoji = Emoji::create([
@@ -106,17 +104,17 @@ class EmojiController
             'created_by' => $this->getUserId($request, $response),
         ]);
 
-        $createdKeyword = $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
+        $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
 
-        return $response->withJson($emoji->toArray(), 201);
+        return $response->withJson(['message' => 'Emoji has been created successfully'], 200);
     }
 
     /**
-     * This method updates an emoji.
+     * This method updates an emoji by using Patch.
      *
-     * @param $emoji
+     * @param $request
      * @param $response
-     * @param $updateParams
+     * @param $args
      *
      * @return json $response
      */
@@ -124,33 +122,30 @@ class EmojiController
     {
         $updateParams = $request->getParsedBody();
 
-        $validateResponse = $this->authController->validateUserData(['name'], $updateParams);
-
-        if (is_array($validateResponse)) {
-            return $response->withJson($validateResponse, 400);
+        $validateUserData = $this->authController->validateUserData(['name'], $updateParams);
+       
+        if (is_array($validateUserData)) {
+            return $response->withJson($validateUserData, 400);
         }
 
-        $emoji = Emoji::find($args['id']);
-        if (count($emoji) < 1) {
-            return $response->withJson(['message' => 'No record to update because the id supplied is invalid'], 404);
-        }
+        $validateArgs = $this->validateArgs($request, $response, $args);
 
-        if (is_null($this->getTheOwner($args, $request, $response)->first())) {
-            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator'], 401);
+        if (is_array($validateArgs)) {
+            return $response->withJson($validateArgs, 401);
         }
 
         Emoji::where('id', '=', $args['id'])
-        ->update(['name' => strtolower($updateParams['name']), 'updated_at' => Carbon::now()->toDateTimeString()]);
+            ->update(['name' => strtolower($updateParams['name']), 'updated_at' => Carbon::now()->toDateTimeString()]);
 
-        return $response->withJson($emoji->toArray(), 200);
+        return $response->withJson(['message' => 'Emoji has been updated successfully'], 200);
     }
 
     /**
-     * This method updates an emoji.
+     * This method updates an emoji by using put.
      *
-     * @param $emoji
+     * @param $request
      * @param $response
-     * @param $updateParams
+     * @param $args
      *
      * @return json $response
      */
@@ -158,69 +153,48 @@ class EmojiController
     {
         $updateParams = $request->getParsedBody();
 
-        $validateResponse = $this->authController->validateUserData(['name', 'chars', 'category'], $updateParams);
-
-        if (is_array($validateResponse)) {
-            return $response->withJson($validateResponse, 400);
+        $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category'], $updateParams);
+       
+        if (is_array($validateUserData)) {
+            return $response->withJson($validateUserData, 400);
         }
 
-        $emoji = Emoji::find($args['id']);
-        if (count($emoji) < 1) {
-            return $response->withJson(['message' => 'No record to update because the id supplied is invalid'], 404);
-        }
+        $validateArgs = $this->validateArgs($request, $response, $args);
 
-        if (is_null($this->getTheOwner($args, $request, $response)->first())) {
-            return $response->withJson(['message' => 'Emoji cannot be updated because you are not the creator'], 401);
+        if (is_array($validateArgs)) {
+            return $response->withJson($validateArgs, 401);
         }
 
         Emoji::where('id', '=', $args['id'])
-        ->update(['name' => strtolower($updateParams['name']), 'chars' => $updateParams['chars'], 'category' => $updateParams['category'], 'updated_at' => Carbon::now()->toDateTimeString()]);
+            ->update(['name' => strtolower($updateParams['name']), 'chars' => $updateParams['chars'], 'category' => $updateParams['category'], 'updated_at' => Carbon::now()->toDateTimeString()]);
 
-        return $response->withJson($emoji, 200);
+        return $response->withJson(['message' => 'Emoji has been updated successfully'], 200);
     }
 
     /**
-     * Route for deleting an emoji.
+     * This method deletes an emoji.
      *
      * @param Slim\Http\Request  $request
      * @param Slim\Http\Response $response
      * @param array              $args
      *
-     * @return Slim\Http\Response
+     * @return json response
      */
     public function deleteEmoji($request, $response, $args)
     {
-        $emoji = Emoji::find($args['id']);
-        if (count($emoji) < 1) {
-            return $response->withJson(['message' => 'No record to delete because the id supplied is invalid'], 404);
+        $validateArgs = $this->validateArgs($request, $response, $args);
+
+        if (is_array($validateArgs)) {
+            return $response->withJson($validateArgs, 401);
         }
 
-        if (is_null($this->getTheOwner($args, $request, $response)->first())) {
-            return $response->withJson(['message' => 'Emoji cannot be deleted because you are not the creator'], 401);
-        }
-
-        $emoji->where('id', '=', $args['id'])->delete();
+        Emoji::where('id', '=', $args['id'])->delete();
 
         return $response->withJson(['message' => 'Emoji successfully deleted.'], 200);
     }
 
     /**
-     * This method checks for duplicate.
-     *
-     * @param Slim\Http\Request  $request
-     * @param Slim\Http\Response $response
-     * @param array              $args
-     *
-     * @return Slim\Http\Response
-     */
-    public function checkDuplicateEmoji($ExistedField, $userData)
-    {
-
-    }
-
-
-    /**
-     * This method authenticate and return user id.
+     * This method authenticate and returns user id.
      *
      * @param $response
      * @param $request
@@ -233,14 +207,11 @@ class EmojiController
 
         try {
             if (isset($jwtoken)) {
-                $secretKey = getenv('APP_SECRET');
-
-                $jwt = $jwtoken[0];
-
-                $decodedToken = JWT::decode($jwt, $secretKey, ['HS256']);
-
-                $tokenInfo = (array) $decodedToken;
-                $userInfo = (array) $tokenInfo['data'];
+                $secretKey    = getenv('APP_SECRET');
+                $jwt          = $jwtoken[0];
+                $decodedToken = JWT::decode($jwt, $secretKey, ['HS512']);
+                $tokenInfo    = (array) $decodedToken;
+                $userInfo     = (array) $tokenInfo['data'];
 
                 return $userInfo['userId'];
             }
@@ -250,39 +221,112 @@ class EmojiController
     }
 
     /**
-     * This method solves for rightful of a record.
+     * This method solves for rightful owner of a record.
+     *
+     * @param $response
+     * @param $request
+     * @param $args
+     *
+     * @return user id
      */
-    public function getTheOwner($args, $request, $response)
+    public function getTheOwner($request, $response, $args)
     {
-        return Capsule::table('emojis')->where('id', '=', $args['id'])
-        ->where('created_by', '=', $this->getUserId($request, $response));
+        return Capsule::table('emojis')
+            ->where('id', '=', $args['id'])
+            ->where('created_by', '=', $this->getUserId($request, $response));
     }
 
     /**
      * This method creates emoji keywords.
      *
+     * @param $emoji_id
+     * @param $keywords
+     *
+     * @return keyword id
+     */
+    public function createEmojiKeywords($emoji_id, $keywords)
+    {
+        if (isset($keywords)) {
+            $splittedKeywords = explode(',', $keywords);
+            $created_at       = Carbon::now()->toDateTimeString();
+            $updated_at       = Carbon::now()->toDateTimeString();
+
+            foreach ($splittedKeywords as $keyword) {
+                $emojiKeyword = Keyword::create([
+                    'emoji_id'     => $emoji_id,
+                    'keyword_name' => $keyword,
+                    'created_at'   => $created_at,
+                    'updated_at'   => $updated_at,
+                ]);
+            }
+
+            return $emojiKeyword->id;
+        }
+
+        return true;
+    }
+
+    /**
+     * This method checks for empty input from user.
+     *
+     * @param $inputName
+     * @param $inputChars
+     * @param $inputCategory
+     * @param $inputKeywords
+     *
+     * @return bool
+     */
+    public function checkEmptyInput($inputName, $inputChars, $inputCategory, $inputKeywords)
+    {
+        if (empty($inputName) || empty($inputChars) || empty($inputCategory) || empty($inputKeywords)) {
+            return ['message' => 'All fields must be provided.'];
+        }
+
+        return true;
+    }
+
+    /**
+     * This method checks for duplicate emoji.
+     *
+     * @param $inputName
+     * @param $inputChars
+     *
+     * @return bool
+     */
+    public function checkDuplicateEmoji($inputName, $inputChars)
+    {
+        $nameCheck = Capsule::table('emojis')->where('name', '=', strtolower($inputName))->get();
+        $charsCheck = Capsule::table('emojis')->where('chars', '=', $inputChars)->get();
+       
+        if ($nameCheck || $charsCheck) {
+
+            return ['message' => 'The emoji already exist in the database.'];
+        }
+
+        return true;
+    }
+
+    /**
+     * This method checks for empty input from user.
+     *
      * @param $request
      * @param $response
      * @param $args
      *
-     * @return $id
+     * @return bool
      */
-    public function createEmojiKeywords($emoji_id, $keywords)
+    public function validateArgs($request, $response, $args)
     {
-        if ($keywords) {
-            $splittedKeywords = explode(',', $keywords);
-            $created_at = Carbon::now()->toDateTimeString();
-            $updated_at = Carbon::now()->toDateTimeString();
-            foreach ($splittedKeywords as $keyword) {
-                $emojiKeyword = Keyword::create([
-                        'emoji_id'     => $emoji_id,
-                        'keyword_name' => $keyword,
-                        'created_at'   => $created_at,
-                        'updated_at'   => $updated_at,
-                ]);
-            }
+        $emoji = Emoji::find($args['id']);
+        
+        if (count($emoji) < 1) {
+            return ['message' => 'Action cannot be performed because the id supplied is invalid'];
         }
 
-        return $emojiKeyword->id;
+        if (is_null($this->getTheOwner($request, $response, $args)->first())) {
+            return ['message' => 'Action cannot be performed because you are not the creator'];
+        }
+
+        return true;
     }
 }

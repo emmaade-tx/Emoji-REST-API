@@ -1,0 +1,36 @@
+language: php
+
+php:
+  - 5.6
+  - 7.0
+  - hhvm
+
+matrix:
+    allow_failures:
+        - php: hhvm
+services:
+  - mysql
+
+before_script:
+   - mysql -e "create database IF NOT EXISTS naijaEmoji;"
+
+
+before_install:
+   - mysql -e "create database IF NOT EXISTS naijaEmoji;" -uroot
+   # - mysql -e "CREATE TABLE users
+   #  (
+   #    id INT(10) PRIMARY KEY AUTO_INCREMENT NOT NULL, fullname VARCHAR(255), username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL
+   #  )" -uroot
+
+install: travis_retry composer install --no-interaction --prefer-source
+
+script:
+  - mkdir -p build/logs
+  - php vendor/bin/phpunit -c phpunit.xml.dist
+  - phpunit --coverage-text --coverage-clover=coverage.clover
+  - phpunit --coverage-clover build/logs/clover.xml
+
+after_script:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+  - travis_retry php vendor/bin/coveralls -v
