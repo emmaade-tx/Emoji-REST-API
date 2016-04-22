@@ -16,7 +16,7 @@ class AuthController
     /**
      * Login a user.
      *
-     * @param Slim\Http\Request  $request
+     * @param Slim\Http\Request $request
      * @param Slim\Http\Response $response
      *
      * @return json response
