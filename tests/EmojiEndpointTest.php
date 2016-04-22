@@ -6,6 +6,8 @@
  */
 namespace Tests;
 
+require __DIR__.'/../vendor/autoload.php';
+
 use Demo\App;
 use Demo\User;
 use Exception;
@@ -50,12 +52,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ];
 
         foreach($contents as $content) {
-
-        $file = fopen($this->configFile, 'a');
-
+            $file = fopen($this->configFile, 'a');
             fwrite($file, $content."\n");
-        };
-
+        }
+        
         fclose($file);
 
         $this->app = (new App("vfs://home/"))->get();
