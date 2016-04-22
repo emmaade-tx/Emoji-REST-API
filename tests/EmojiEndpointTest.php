@@ -1,4 +1,4 @@
-
+<?php
 
 /**
  * @author: Raimi Ademola <ademola.raimi@andela.com>
@@ -6,6 +6,8 @@
  */
 
 namespace Tests;
+
+require __DIR__.'/../vendor/autoload.php';
 
 use Demo\App;
 use Demo\User;
@@ -55,7 +57,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         foreach($contents as $content) {
             fwrite($file, $content."\n");
         }
-    
+        
         fclose($file);
 
         $this->app = (new App("vfs://home/"))->get();
