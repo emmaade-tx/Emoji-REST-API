@@ -44,9 +44,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'JWT_ALGORITHM = HS512',
             '[Database]',
             'driver = mysql',
-            'host=localhost',
-            'username=root',
-            'password=',
+            'host=localhost:33060',
+            'username=homestead',
+            'password=secret',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
@@ -57,7 +57,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         foreach($contents as $content) {
             fwrite($file, $content."\n");
         }
-    
+        
         fclose($file);
 
         $this->app = (new App("vfs://home/"))->get();
