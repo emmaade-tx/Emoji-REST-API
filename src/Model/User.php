@@ -17,6 +17,6 @@ class User extends Model
      */
     public function emoji()
     {
-        return $this->hasMany('Demo\Emoji', 'created_by', 'id');
+        return $this->hasMany('Demo\Emoji');
     }
 }

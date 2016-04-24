@@ -37,8 +37,8 @@ class AuthController
         }
 
         $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
-        $token   = $this->generateToken($user->id, $issTime);
-   
+        $token   = $this->generateToken($user->username, $issTime);
+    
         return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
     }
 
@@ -49,7 +49,7 @@ class AuthController
      *
      * @return string
      */
-    private function generateToken($userId, $time = null)
+    private function generateToken($username, $time = null)
     {
         $time         = $time == null ? time() : $time;
         $appSecret    = getenv('APP_SECRET');
@@ -62,7 +62,7 @@ class AuthController
             'nbf'     => $timeIssued, //Not before time
             'exp'     => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
             'data'    => [                  // Data related to the signer user
-                'userId'  => $userId, // userid from the users tableu;
+                'username'  => $username, // userid from the users tableu;
             ],
         ];
 
@@ -96,14 +96,13 @@ class AuthController
             return $response->withJson(['message' => 'Username already exist.'], 409);
         }
 
-        User::firstOrCreate(
-            [
-                'fullname'   => $requestParams['fullname'],
-                'username'   => strtolower($requestParams['username']),
-                'password'   => password_hash($requestParams['password'], PASSWORD_DEFAULT),
-                'created_at' => Carbon::now()->toDateTimeString(),
-                'updated_at' => Carbon::now()->toDateTimeString(),
-            ]);
+        User::create([
+            'fullname'   => $requestParams['fullname'],
+            'username'   => strtolower($requestParams['username']),
+            'password'   => password_hash($requestParams['password'], PASSWORD_DEFAULT),
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
 
         return $response->withJson(['message' => 'User successfully created.'], 201);
     }
@@ -129,21 +128,13 @@ class AuthController
      *
      * @return bool
      */
-    public function authenticate($username, $password)
+    private function authenticate($username, $password)
     {
-        $user = User::where('username', $username)->get();
-
-        if ($user->isEmpty()) {
-            return false;
-        }
-
-        $user = $user->first();
+        $user = User::where('username', $username)->first();
 
         if (password_verify($password, $user->password)) {
             return $user;
         }
-
-        return false;
     }
 
     /**

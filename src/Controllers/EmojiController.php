@@ -34,15 +34,36 @@ class EmojiController
      *
      * @return Slim\Http\Response
      */
-    public function getAllEmojis($request, $response, $args)
+    public function getAllEmojis($request, $response)
     {
-        $emoji = Emoji::with('keywords', 'created_by')->get();
-
-        if (count($emoji) > 0) {
-            return $response->withJson($emoji);
+        $emojis = Emoji::all();
+        
+        if (!count($emojis) > 0) {
+            return $response->withJson(['message' => 'Oops, No Emoji to display'], 404);
         }
 
-        return $response->withJson(['message' => 'Oops, No Emoji to display'], 404);
+        $emojiArray = [];
+
+        foreach($emojis as $emoji) {
+            $emojiProperty = [
+                'id'         => $emoji->id,
+                'name'       => $emoji->name, 
+                'chars'      => $emoji->chars, 
+                'category'   => $emoji->category,
+                'created_by' => $emoji->created_by
+            ];
+
+            $keywords = [];
+
+            foreach($emoji->keywords as $keyword) {
+                array_push($keywords, $keyword->name);
+            }
+            
+            $emojiProperty['keywords'] = $keywords;
+            $emojiArray[] = $emojiProperty;
+        }
+
+        return $response->withJson($emojiArray);
     }
 
     /**
@@ -56,11 +77,23 @@ class EmojiController
      */
     public function getSingleEmoji($request, $response, $args)
     {
-        $emoji = Emoji::with('keywords', 'created_by')->find($args['id']);
+        if (!is_numeric($args['id'])) {
+            return $response->withJson(['message' => 'The argument supplied must be an integer.'], 401);
+        }
+
+        $emoji = Emoji::find($args['id']);
 
         if (count($emoji) < 1) {
             return $response->withJson(['message' => 'The requested Emoji is not found.'], 404);
         }
+
+        $keywords = [];
+
+        foreach ($emoji->keywords as $keyword) {
+            array_push($keywords, $keyword->name);
+        }
+
+        $emoji = ['id'=> $emoji->id, 'name' => $emoji->name, 'chars' => $emoji->chars, 'category' => $emoji->category, 'created_by' => $emoji->created_by, 'keywords' => $keywords];
 
         return $response->withJson($emoji);
     }
@@ -76,7 +109,8 @@ class EmojiController
      */
     public function CreateEmoji($request, $response, $requestParams)
     {
-        $requestParams     = $request->getParsedBody();
+        //dd('I love this');
+        $requestParams    = $request->getParsedBody();
         $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
 
         if (is_array($validateUserData)) {
@@ -94,19 +128,19 @@ class EmojiController
         if (is_array($validateEmojiDuplicate)) {
             return $response->withJson($validateEmojiDuplicate, 400);
         }
-
+    
         $emoji = Emoji::create([
             'name'       => strtolower($requestParams['name']),
             'chars'      => $requestParams['chars'],
             'category'   => $requestParams['category'],
             'created_at' => Carbon::now()->toDateTimeString(),
             'updated_at' => Carbon::now()->toDateTimeString(),
-            'created_by' => $this->getUserId($request, $response),
+            'created_by' => $this->getUsername($request, $response),
         ]);
 
         $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
-
-        return $response->withJson(['message' => 'Emoji has been created successfully'], 200);
+    
+        return $response->withJson(['message' => 'Emoji has been created successfully'], 201);
     }
 
     /**
@@ -120,8 +154,7 @@ class EmojiController
      */
     public function updateEmojiByPatch($request, $response, $args)
     {
-        $updateParams = $request->getParsedBody();
-
+        $updateParams     = $request->getParsedBody();
         $validateUserData = $this->authController->validateUserData(['name'], $updateParams);
        
         if (is_array($validateUserData)) {
@@ -152,7 +185,6 @@ class EmojiController
     public function updateEmojiByPut($request, $response, $args)
     {
         $updateParams = $request->getParsedBody();
-
         $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category'], $updateParams);
        
         if (is_array($validateUserData)) {
@@ -183,7 +215,6 @@ class EmojiController
     public function deleteEmoji($request, $response, $args)
     {
         $validateArgs = $this->validateArgs($request, $response, $args);
-
         if (is_array($validateArgs)) {
             return $response->withJson($validateArgs, 401);
         }
@@ -201,7 +232,7 @@ class EmojiController
      *
      * @return user id
      */
-    public function getUserId($request, $response)
+    private function getUsername($request, $response)
     {
         $jwtoken = $request->getHeader('HTTP_AUTHORIZATION');
 
@@ -212,8 +243,8 @@ class EmojiController
                 $decodedToken = JWT::decode($jwt, $secretKey, ['HS512']);
                 $tokenInfo    = (array) $decodedToken;
                 $userInfo     = (array) $tokenInfo['data'];
-
-                return $userInfo['userId'];
+                //dd($userInfo['username']);
+                return $userInfo['username'];
             }
         } catch (Exception $e) {
             return $response->withJson(['status: fail, msg: Unauthorized']);
@@ -229,11 +260,11 @@ class EmojiController
      *
      * @return user id
      */
-    public function getTheOwner($request, $response, $args)
+    private function getTheOwner($request, $response, $args)
     {
         return Capsule::table('emojis')
             ->where('id', '=', $args['id'])
-            ->where('created_by', '=', $this->getUserId($request, $response));
+            ->where('created_by', '=', $this->getUsername($request, $response));
     }
 
     /**
@@ -254,13 +285,13 @@ class EmojiController
             foreach ($splittedKeywords as $keyword) {
                 $emojiKeyword = Keyword::create([
                     'emoji_id'     => $emoji_id,
-                    'keyword_name' => $keyword,
+                    'name'         => $keyword,
                     'created_at'   => $created_at,
                     'updated_at'   => $updated_at,
                 ]);
             }
 
-            return $emojiKeyword->id;
+            return $emojiKeyword->name;
         }
 
         return true;
@@ -317,6 +348,10 @@ class EmojiController
      */
     public function validateArgs($request, $response, $args)
     {
+        if (!is_numeric($args['id'])) {
+            return ['message' => 'The argument supplied must be an integer.'];
+        }
+
         $emoji = Emoji::find($args['id']);
         
         if (count($emoji) < 1) {

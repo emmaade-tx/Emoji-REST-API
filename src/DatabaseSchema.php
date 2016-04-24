@@ -37,6 +37,10 @@ class DatabaseSchema
                 $table->string('category');
                 $table->integer('created_by');
                 $table->timestamps();
+
+                $table->foreign('created_by')
+                    ->references('username')
+                    ->on('users');
             });
         }
     }
@@ -50,8 +54,12 @@ class DatabaseSchema
             Capsule::schema()->create('keywords', function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('emoji_id');
-                $table->string('keyword_name');
+                $table->string('name');
                 $table->timestamps();
+
+                $table->foreign('emoji_id')
+                    ->references('id')
+                    ->on('emojis');
             });
         }
     }
