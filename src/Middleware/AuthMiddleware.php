@@ -29,13 +29,13 @@ class AuthMiddleware
                 $secretKey    = getenv('APP_SECRET');
                 $jwt          = $authHeader[0];    
                 $decodedToken = JWT::decode($jwt, $secretKey, ['HS512']);
-
+               
                 return $next($request, $response);
             }
         } catch (Exception $e) {
             return $response->withJson(['status: Token invalid or Expired'], 500);
         }
-
-        return $response->withJson(['message' => 'User unauthorized due to invalid token'], 401);
+       
+        return $response->withJson(['message' => 'User unauthorized due to empty token'], 401);
    }
 }
