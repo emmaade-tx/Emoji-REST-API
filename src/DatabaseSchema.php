@@ -39,7 +39,7 @@ class DatabaseSchema
                 $table->timestamps();
 
                 $table->foreign('created_by')
-                    ->references('username')
+                    ->references('id')
                     ->on('users')
                     ->onDelete('cascade');
             });
