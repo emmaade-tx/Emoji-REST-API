@@ -41,9 +41,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'JWT_ALGORITHM = HS512',
             '[Database]',
             'driver = mysql',
-            'host=localhost',
-            'username=root',
-            'password=',
+            'host=localhost:33060',
+            'username=homestead',
+            'password=secret',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
@@ -214,7 +214,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     }
 
     public function testCreateUser()
-    {   
+    { 
+        User::truncate();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/register',
@@ -258,7 +259,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testPostEmoji()
     {
-        
+        User::truncate();   
         $this->populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username, 1440295673);
@@ -415,28 +416,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $data = ['message' => 'Unwanted fields must be removed'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 400);
-    }
-
-    public function testThatCorrectLoginCredentialWhereUsedToLogin()
-    {
-        $this->populateUser();
-        $env = Environment::mock([
-            'REQUEST_METHOD' => 'POST',
-            'REQUEST_URI'    => '/auth/login',
-            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
-            'PATH_INFO'      => '/auth',
-        ]);
-        $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody([
-            'username' => 'tester',
-            'password' => 'test',
-        ]);
-        $req = $req->withAttribute('issTime', 1440295673);
-
-        $userData = $req->getParsedBody();
-        $this->app->getContainer()['request'] = $req;
-        $response = $this->app->run(true);
-        $this->assertSame($response->getStatusCode(), 200);
     }
     
     public function testThatInCorrectLoginCredentialWereUsedToLogin()
