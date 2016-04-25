@@ -365,7 +365,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 404);
+        $this->assertSame($response->getStatusCode(), 200);
     }
 
     public function testGetSingleEmojiNotExist()
@@ -446,7 +446,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $this->populateUser();
         $user = User::find(1);
-        $token = $this->generateToken($user->Id);
+        $token = $this->generateToken($user->username);
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
@@ -479,7 +479,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $this->populateUser();
         $user = User::find(1);
-        $token = $this->generateToken($user->Id);
+        $token = $this->generateToken($user->username);
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
@@ -512,7 +512,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $this->populateUser();
         $user = User::find(1);
-        $token = $this->generateToken($user->Id);
+        $token = $this->generateToken($user->username);
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PATCH',
@@ -536,7 +536,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 400);
     }
 
-    public function testEditEmojiPartiallyByDiffCreator()
+    public function testEditEmojiPartiallByDiffCreator()
     {
         //Emoji::truncate();
         User::truncate();
@@ -544,11 +544,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $this->populateUser();
         $user = User::find(1);
-        $token = $this->generateToken($user->Id);
+        $token = $this->generateToken($user->username);
 
         $env = Environment::mock([
-            'REQUEST_METHOD'     => 'PATCH',
-            'REQUEST_URI'        => '/emojis/2',
+            'REQUEST_METHOD'     => 'PUT',
+            'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
             'HTTP_AUTHORIZATION' => $token,
         ]);
@@ -556,7 +556,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody(
             [
-                'name' => 'WINKING FACE',
+                'name'       => 'KISSING FACE',
             ]);
 
         $this->app->getContainer()['request'] = $req;
@@ -575,7 +575,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $this->populateUser();
         $user = User::find(1);
-        $token = $this->generateToken($user->Id);
+        $token = $this->generateToken($user->username);
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PATCH',
@@ -606,7 +606,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $this->populateUser();
         $user = User::find(1);
-        $token = $this->generateToken($user->Id);
+        $token = $this->generateToken($user->username);
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PATCH',
@@ -637,7 +637,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $this->populateUser();
         $user = User::find(1);
-        $token = $this->generateToken($user->Id);
+        $token = $this->generateToken($user->username);
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
@@ -674,7 +674,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'DELETE',
-            'REQUEST_URI'        => '/emojis/2',
+            'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
             'HTTP_AUTHORIZATION' => $token,
         ]);
