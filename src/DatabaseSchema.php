@@ -35,11 +35,11 @@ class DatabaseSchema
                 $table->string('name');
                 $table->string('chars');
                 $table->string('category');
-                $table->integer('created_by');
+                $table->string('created_by');
                 $table->timestamps();
 
                 $table->foreign('created_by')
-                    ->references('id')
+                    ->references('username')
                     ->on('users')
                     ->onDelete('cascade');
             });
