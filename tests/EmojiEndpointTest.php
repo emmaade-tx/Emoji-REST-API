@@ -64,10 +64,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->schema->createUsersTable();
         $this->schema->createEmojisTable();
         $this->schema->createKeywordsTable();
-
-        Keyword::truncate();
-        //Emoji::truncate();
-        User::truncate();
     }
 
     public function request($method, $path, $options = [])
@@ -103,10 +99,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return $request
      */
-    // public function postIndex($path, $options = [])
-    // {
-    //     $this->request('POST', $path, $options);
-    // }
+    public function postIndex($path, $options = [])
+    {
+        $this->request('POST', $path, $options);
+    }
 
     /**
      * This method ascertain that emoji index page return status code 404.
@@ -115,11 +111,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    // public function testPostIndex()
-    // {
-    //     $this->postIndex('/', ['ACCEPT' => 'application/json']);
-    //     $this->assertEquals('404', $this->response->getStatusCode());
-    // }
+    public function testPostIndex()
+    {
+        $this->postIndex('/', ['ACCEPT' => 'application/json']);
+        $this->assertEquals('404', $this->response->getStatusCode());
+    }
 
     /**
      * This method ascertain that emoji index page return status code 404.
@@ -128,16 +124,16 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    // public function testGetIndex()
-    // {
-    //     $this->get('/', ['ACCEPT' => 'application/json']);
-    //     $this->assertEquals('200', $this->response->getStatusCode());
-    // }
+    public function testGetIndex()
+    {
+        $this->get('/', ['ACCEPT' => 'application/json']);
+        $this->assertEquals('200', $this->response->getStatusCode());
+    }
 
-    // public function testPHPUnitWarningSuppressor()
-    // {
-    //     $this->assertTrue(true);
-    // }
+    public function testPHPUnitWarningSuppressor()
+    {
+        $this->assertTrue(true);
+    }
 
     private function generateToken($username, $time = null)
     {
@@ -155,9 +151,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'data' => ['username' => $username],
         ];
         $jwt = JWT::encode(
-            $JWTToken,      //Data to be encoded in the JWT
-            $secretKey, // The signing key
-            'HS512'     // Algorithm used to sign the token, see https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-3
+            $JWTToken,     //Data to be encoded in the JWT
+            $secretKey,   // The signing key
+            'HS512'      // Algorithm used to sign the token, see https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-3
         );
     
         return $jwt;
@@ -226,7 +222,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $body = [
-            'fullname' => 'tester',
+            'fullname' => 'John test',
             'username' => 'tester',
             'password' => 'test',
         ];
@@ -241,6 +237,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testuserLogin()
     {
+        $this->populateUser();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
@@ -276,8 +273,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'A new emoji',
-            'chars'      => '90-new',
+            'name'       => 'new emoji',
+            'chars'      => '91-new',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -422,6 +419,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testThatCorrectLoginCredentialWhereUsedToLogin()
     {
+        $this->populateUser();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
