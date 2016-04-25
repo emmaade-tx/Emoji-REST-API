@@ -64,9 +64,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->schema->createUsersTable();
         $this->schema->createEmojisTable();
         $this->schema->createKeywordsTable();
-        Keyword::truncate();
-        Emoji::truncate();
-        User::truncate();
     }
 
     public function request($method, $path, $options = [])
