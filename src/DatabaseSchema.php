@@ -17,7 +17,7 @@ class DatabaseSchema
             Capsule::schema()->create('users', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('fullname');
-                $table->string('username')->unique();
+                $table->string('username');
                 $table->string('password');
                 $table->timestamps();
             });
