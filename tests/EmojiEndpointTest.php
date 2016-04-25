@@ -206,25 +206,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //dd($emoji);
     }
 
-    // public function createEmojiKeywords($emoji_id, $keywords)
-    // {
-    //     if ($keywords) {
-    //         $splittedKeywords = explode(',', $keywords);
-    //         $created_at = Carbon::now()->toDateTimeString();
-    //         $updated_at = Carbon::now()->toDateTimeString();
-    //         foreach ($splittedKeywords as $keyword) {
-    //             $emojiKeyword = Keyword::create([
-    //                 'emoji_id'     => $emoji_id,
-    //                 'keyword_name' => $keyword,
-    //                 'created_at'   => $created_at,
-    //                 'updated_at'   => $updated_at,
-    //             ]);
-    //         }
-    //     }
-    //     //dd($emojiKeyword->id);
-    //     return $emojiKeyword->id;
-    // }
-
     public function testCreateUser()
     {   
         User::truncate();
@@ -288,10 +269,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'vdvddd',
-            'chars'      => 'u-789',
-            'category'   => 'Category A',
-            'keywords'   => 'happy',
+            'name'       => 'This is a new emoji',
+            'chars'      => '90-poul',
+            'category'   => 'Category B',
+            'keywords'   => 'sad',
         ]);
 
         Emoji::create([
@@ -384,7 +365,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $this->assertSame($response->getStatusCode(), 200);
+        $this->assertSame($response->getStatusCode(), 404);
     }
 
     public function testGetSingleEmojiNotExist()
@@ -567,7 +548,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PATCH',
-            'REQUEST_URI'        => '/emojis/1',
+            'REQUEST_URI'        => '/emojis/2',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
             'HTTP_AUTHORIZATION' => $token,
         ]);
@@ -693,7 +674,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'DELETE',
-            'REQUEST_URI'        => '/emojis/1',
+            'REQUEST_URI'        => '/emojis/2',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
             'HTTP_AUTHORIZATION' => $token,
         ]);
