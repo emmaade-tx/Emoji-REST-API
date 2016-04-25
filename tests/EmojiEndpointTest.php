@@ -40,7 +40,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'APP_SECRET    = secretKey',
             'JWT_ALGORITHM = HS512',
             '[Database]',
-            'driver = mysql',
+            'driver=mysql',
             'host=localhost',
             'username=root',
             'password=',
@@ -54,7 +54,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $file = fopen($this->configFile, 'a');
 
             fwrite($file, $content."\n");
-        }
+        };
 
         fclose($file);
 
@@ -64,6 +64,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->schema->createUsersTable();
         $this->schema->createEmojisTable();
         $this->schema->createKeywordsTable();
+        Keyword::truncate();
+        Emoji::truncate();
+        User::truncate();
     }
 
     public function request($method, $path, $options = [])
