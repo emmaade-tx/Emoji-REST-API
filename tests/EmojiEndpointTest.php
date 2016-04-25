@@ -64,6 +64,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->schema->createUsersTable();
         $this->schema->createEmojisTable();
         $this->schema->createKeywordsTable();
+
+        Keyword::truncate();
+        //Emoji::truncate();
+        User::truncate();
     }
 
     public function request($method, $path, $options = [])
@@ -211,12 +215,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'created_at' => Carbon::now()->toDateTimeString(),
             'updated_at' => Carbon::now()->toDateTimeString(),
         ]);
-        //dd($emoji);
     }
 
     public function testCreateUser()
     {   
-        User::truncate();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/register',
@@ -259,9 +261,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testPostEmoji()
     {
-        //Emoji::truncate();
-        //User::truncate();
-        //Keyword::truncate();
         
         $this->populateUser();
         $user = User::find(1);
@@ -302,9 +301,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testPostEmojiALreadyExit()
     {
-        //Emoji::truncate();
-        //User::truncate();
-        //Keyword::truncate();
         
         $this->populateUser();
         $user = User::find(1);
@@ -345,9 +341,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testPostEmojiWithIncompleteField()
     {
-        //Emoji::truncate();
-        //User::truncate();
-        //Keyword::truncate();
         
         $this->populateUser();
         $user = User::find(1);
@@ -388,9 +381,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testPostEmojiWithWrongField()
     {
-        //Emoji::truncate();
-        //User::truncate();
-        //Keyword::truncate();
         
         $this->populateUser();
         $user = User::find(1);
@@ -544,9 +534,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiWithPutWithWrongFields()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -578,9 +565,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiWithPutByDiffCreator()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -611,9 +595,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiWithPutWithInvalidID()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -644,9 +625,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiPartiallyWithWrongFields()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -676,9 +654,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiPartiallByDiffCreator()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(2);
@@ -708,9 +683,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiPartiallyWithInvalidID()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -739,9 +711,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiPartiallyWithStringId()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -770,9 +739,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiWithPutWithStringID()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -803,10 +769,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testDeleteEmojiWithDiffCreator()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
-        //
+        
         $this->populateUser();
         $user = User::find(2);
         $token = $this->generateToken($user->username);
@@ -829,9 +792,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testDeleteEmojiWithStringId()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -855,9 +815,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testDeleteEmojiWithInvalidId()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);
@@ -899,9 +856,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testuserLogoutSuccessfully()
     {
-        //Emoji::truncate();
-        User::truncate();
-        //Keyword::truncate();
 
         $this->populateUser();
         $user = User::find(1);

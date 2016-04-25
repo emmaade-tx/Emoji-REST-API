@@ -40,7 +40,8 @@ class DatabaseSchema
 
                 $table->foreign('created_by')
                     ->references('username')
-                    ->on('users');
+                    ->on('users')
+                    ->onDelete('cascade');
             });
         }
     }
@@ -59,7 +60,8 @@ class DatabaseSchema
 
                 $table->foreign('emoji_id')
                     ->references('id')
-                    ->on('emojis');
+                    ->on('emojis')
+                    ->onDelete('cascade');
             });
         }
     }
