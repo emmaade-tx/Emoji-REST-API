@@ -111,11 +111,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    public function testPostIndex()
-    {
-        $this->postIndex('/', ['ACCEPT' => 'application/json']);
-        $this->assertEquals('404', $this->response->getStatusCode());
-    }
+    // public function testPostIndex()
+    // {
+    //     $this->postIndex('/', ['ACCEPT' => 'application/json']);
+    //     $this->assertEquals('404', $this->response->getStatusCode());
+    // }
 
     /**
      * This method ascertain that emoji index page return status code 404.
@@ -130,10 +130,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     //     $this->assertEquals('200', $this->response->getStatusCode());
     // }
 
-    public function testPHPUnitWarningSuppressor()
-    {
-        $this->assertTrue(true);
-    }
+    // public function testPHPUnitWarningSuppressor()
+    // {
+    //     $this->assertTrue(true);
+    // }
 
     private function generateToken($username, $time = null)
     {
@@ -188,6 +188,14 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'fullname' => 'John Tester',
             'username' => 'tester',
             'password' => 'test',
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
+
+        User::create([
+            'fullname' => 'Paul Tester',
+            'username' => 'Paul',
+            'password' => 'tests',
             'created_at' => Carbon::now()->toDateTimeString(),
             'updated_at' => Carbon::now()->toDateTimeString(),
         ]);
@@ -673,15 +681,15 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //Keyword::truncate();
 
         $this->populateUser();
-        $user = User::find(1);
+        $user = User::find(2);
         $token = $this->generateToken($user->username);
-        $invalidToken = 'aKScnkjbcnjasbcajsb';
+        
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
             'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => $invalidToken,
+            'HTTP_AUTHORIZATION' => $token,
         ]);
 
         $req = Request::createFromEnvironment($env);
@@ -798,17 +806,16 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //Emoji::truncate();
         User::truncate();
         //Keyword::truncate();
-
+        //
         $this->populateUser();
-        $user = User::find(1);
+        $user = User::find(2);
         $token = $this->generateToken($user->username);
-        $invalidToken = 'kjadhvhagfuyawvabg';
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'DELETE',
             'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => $invalidToken,
+            'HTTP_AUTHORIZATION' => $token,
         ]);
 
         $req = Request::createFromEnvironment($env);
