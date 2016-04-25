@@ -99,10 +99,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return $request
      */
-    public function postIndex($path, $options = [])
-    {
-        $this->request('POST', $path, $options);
-    }
+    // public function postIndex($path, $options = [])
+    // {
+    //     $this->request('POST', $path, $options);
+    // }
 
     /**
      * This method ascertain that emoji index page return status code 404.
@@ -124,11 +124,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    public function testGetIndex()
-    {
-        $this->get('/', ['ACCEPT' => 'application/json']);
-        $this->assertEquals('200', $this->response->getStatusCode());
-    }
+    // public function testGetIndex()
+    // {
+    //     $this->get('/', ['ACCEPT' => 'application/json']);
+    //     $this->assertEquals('200', $this->response->getStatusCode());
+    // }
 
     public function testPHPUnitWarningSuppressor()
     {
@@ -269,8 +269,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'This is a new emoji',
-            'chars'      => '90-poul',
+            'name'       => 'A new emoji',
+            'chars'      => '90-new',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -290,6 +290,136 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $data = ['message' => 'Emoji has been created successfully'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 201);
+    }
+
+    public function testPostEmojiALreadyExit()
+    {
+        //Emoji::truncate();
+        //User::truncate();
+        //Keyword::truncate();
+        
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->username, 1440295673);
+
+         $env = Environment::mock([
+            'REQUEST_METHOD'     => 'POST',
+            'REQUEST_URI'        => '/emojis',
+            'HTTP_AUTHORIZATION' => $token,
+        ]);
+
+         
+
+        $req = Request::createFromEnvironment($env);
+        $req = $req->withParsedBody([
+            'name'       => 'A new emoji',
+            'chars'      => '90-new',
+            'category'   => 'Category B',
+            'keywords'   => 'sad',
+        ]);
+
+        Emoji::create([
+            'name'       => 'name',
+            'chars'      => 'chars',
+            'category'   => 'category',
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+            'created_by' => $user->username,
+        ]);
+        
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $result = json_decode($response->getBody(), true);
+        $data = ['message' => 'The emoji already exist in the database.'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 400);
+    }
+
+    public function testPostEmojiWithIncompleteField()
+    {
+        //Emoji::truncate();
+        //User::truncate();
+        //Keyword::truncate();
+        
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->username, 1440295673);
+
+         $env = Environment::mock([
+            'REQUEST_METHOD'     => 'POST',
+            'REQUEST_URI'        => '/emojis',
+            'HTTP_AUTHORIZATION' => $token,
+        ]);
+
+         
+
+        $req = Request::createFromEnvironment($env);
+        $req = $req->withParsedBody([
+            'name'       => 'This is a new emoji',
+            'chars'      => '90-poul',
+            'category'   => 'Category B',
+            'keywords'   => '',
+        ]);
+
+        Emoji::create([
+            'name'       => 'name',
+            'chars'      => 'chars',
+            'category'   => 'category',
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+            'created_by' => $user->username,
+        ]);
+        
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $result = json_decode($response->getBody(), true);
+        $data = ['message' => 'All fields must be provided.'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 401);
+    }
+
+    public function testPostEmojiWithWrongField()
+    {
+        //Emoji::truncate();
+        //User::truncate();
+        //Keyword::truncate();
+        
+        $this->populateUser();
+        $user = User::find(1);
+        $token = $this->generateToken($user->username, 1440295673);
+
+         $env = Environment::mock([
+            'REQUEST_METHOD'     => 'POST',
+            'REQUEST_URI'        => '/emojis',
+            'HTTP_AUTHORIZATION' => $token,
+        ]);
+
+         
+
+        $req = Request::createFromEnvironment($env);
+        $req = $req->withParsedBody([
+            'name'       => 'This is a new emoji',
+            'chars'      => '90-poul',
+            'category'   => 'Category B',
+            'keywords'   => 'sad',
+            'class'      => 'class A'
+        ]);
+
+        Emoji::create([
+            'name'       => 'name',
+            'chars'      => 'chars',
+            'category'   => 'category',
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+            'created_by' => $user->username,
+        ]);
+        
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $result = json_decode($response->getBody(), true);
+        $data = ['message' => 'Unwanted fields must be removed'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 400);
     }
 
     public function testThatCorrectLoginCredentialWhereUsedToLogin()
@@ -545,12 +675,13 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username);
+        $invalidToken = 'aKScnkjbcnjasbcajsb';
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
             'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => $token,
+            'HTTP_AUTHORIZATION' => $invalidToken,
         ]);
 
         $req = Request::createFromEnvironment($env);
@@ -671,12 +802,13 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username);
+        $invalidToken = 'kjadhvhagfuyawvabg';
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'DELETE',
             'REQUEST_URI'        => '/emojis/1',
             'CONTENT_TYPE'       => 'application/x-www-form-urlencoded',
-            'HTTP_AUTHORIZATION' => $token,
+            'HTTP_AUTHORIZATION' => $invalidToken,
         ]);
 
         $req = Request::createFromEnvironment($env);
