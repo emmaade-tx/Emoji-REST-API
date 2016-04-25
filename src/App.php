@@ -8,8 +8,8 @@ namespace Demo;
 
 use Exception;
 use Dotenv\Dotenv;
-use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class App
 {
