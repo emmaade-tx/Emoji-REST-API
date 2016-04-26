@@ -169,8 +169,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'username' => 'tester',
-            'password' => 'test',
+            'username' => 'paul',
+            'password' => 'tests',
         ]);
 
         $req = $req->withAttribute('issTime', 1440295673);
@@ -275,8 +275,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'a new kind of emoji',
-            'chars'      => '91-kindnew',
+            'name'       => 'a new kinds of emoji',
+            'chars'      => '91-kindsnew',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -315,8 +315,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'A new emoji',
-            'chars'      => '90-new',
+            'name'       => 'a new kinds of emoji',
+            'chars'      => '91-kindsnew',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -546,7 +546,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //User::truncate();
         $this->populateUser();
         $user = User::find(2);
-        $token = $this->generateToken($user->username);
+        $token = $this->getLoginTokenForTestUser();
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
@@ -635,7 +635,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //User::truncate();
         $this->populateUser();
         $user = User::find(2);
-        $token = $this->generateToken($user->username);
+        $token = $this->getLoginTokenForTestUser();
         
 
         $env = Environment::mock([
@@ -750,7 +750,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //User::truncate();
         $this->populateUser();
         $user = User::find(2);
-        $token = $this->generateToken($user->username);
+        $token = $this->getLoginTokenForTestUser();
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'DELETE',
