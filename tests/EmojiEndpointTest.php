@@ -172,7 +172,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     }
 
     public function testCreateUser()
-    { 
+    {
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/register',
