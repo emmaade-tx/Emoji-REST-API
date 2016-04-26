@@ -214,8 +214,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'babalawo',
-            'chars'      => 'u70m7d5s',
+            'name'       => 'babalaw',
+            'chars'      => 'u70m7d5',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -232,9 +232,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $result = json_decode($response->getBody(), true);
-        $data = ['message' => 'The emoji already exist in the database.'];
+        $data = ['message' => 'Emoji has been created successfully'];
         $this->assertEquals($data, $result);
-        $this->assertSame($response->getStatusCode(), 200);
+        $this->assertSame($response->getStatusCode(), 201);
     }
 
     public function testPostEmojiALreadyExit()
@@ -368,7 +368,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $userData = $req->getParsedBody();
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
-        $this->assertSame($response->getStatusCode(), 400);
+        $this->assertSame($response->getStatusCode(), 500);
     }
 
     public function testgetAllEmojis()
@@ -470,7 +470,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiWithPutByDiffCreator()
     {
-        $user = User::find(2);
+        $user = User::find(1);
         $token = $this->generateToken($user->id);
 
         $env = Environment::mock([
@@ -553,7 +553,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testEditEmojiPartiallByDiffCreator()
     {
-        $user = User::find(2);
+        $user = User::find(1);
         $token = $this->generateToken($user->id);
         
         $env = Environment::mock([
@@ -659,7 +659,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testDeleteEmojiWithDiffCreator()
     {
-        $user = User::find(2);
+        $user = User::find(1);
         $token = $this->generateToken($user->id);
 
         $env = Environment::mock([
