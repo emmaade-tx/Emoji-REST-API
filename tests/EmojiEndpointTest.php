@@ -358,7 +358,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'password'   => 'test',
             'created_at' => Carbon::now()->toDateTimeString(),
             'updated_at' => Carbon::now()->toDateTimeString(),
-        ]);  
+        ]); 
 
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
@@ -380,8 +380,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     }
 
     public function testgetAllEmojis()
-    {
-        $this->populateEmoji();
+    {  
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
             'REQUEST_URI'    => '/emojis',
@@ -398,7 +397,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function testGetSingleEmoji()
     {
-        $this->populateEmoji();
         $env = Environment::mock([
             'REQUEST_METHOD' => 'GET',
             'REQUEST_URI'    => '/emojis/1',
