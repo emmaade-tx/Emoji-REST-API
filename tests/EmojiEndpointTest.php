@@ -169,7 +169,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $body = [
             'fullname' => 'Gabit tests',
-            'username' => 'gladis',
+            'username' => 'gladys',
             'password' => 'tets',
         ];
 
@@ -192,7 +192,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'username' => 'gladis',
+            'username' => 'gladys',
             'password' => 'tets',
         ]);
 
@@ -234,7 +234,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $result = json_decode($response->getBody(), true);
         //$data = ['message' => 'Emoji has been created successfully'];
         //$this->assertEquals($data, $result);
-        $this->assertSame($response->getStatusCode(), 400);
+        $this->assertSame($response->getStatusCode(), 201);
     }
 
     public function testPostEmojiALreadyExit()
