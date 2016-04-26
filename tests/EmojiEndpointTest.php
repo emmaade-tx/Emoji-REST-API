@@ -177,8 +177,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $result = json_decode($response->getBody(), true);
-        $this->assertEquals($result['message'], 'Username already exist.');
-        $this->assertSame($response->getStatusCode(), 409);
+        $this->assertEquals($result['message'], 'User successfully created.');
+        $this->assertSame($response->getStatusCode(), 201);
     }
 
     public function testuserLogin()
@@ -234,7 +234,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $result = json_decode($response->getBody(), true);
         $data = ['message' => 'The emoji already exist in the database.'];
         $this->assertEquals($data, $result);
-        $this->assertSame($response->getStatusCode(), 400);
+        $this->assertSame($response->getStatusCode(), 200);
     }
 
     public function testPostEmojiALreadyExit()
@@ -352,14 +352,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     
     public function testThatInCorrectLoginCredentialWereUsedToLogin()
     {
-        User::create([
-            'fullname'   => 'John test',
-            'username'   => 'tester',
-            'password'   => 'test',
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-        ]); 
-
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
