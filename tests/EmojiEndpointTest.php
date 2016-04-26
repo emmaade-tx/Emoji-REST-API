@@ -768,7 +768,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     public function testDeleteEmojiWithDiffCreator()
     {
         //User::truncate();
-        self->populateUser();
+        self::populateUser();
         $user = User::find(2);
         $token = $this->generateToken($user->id);
 
@@ -855,7 +855,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     public function testuserLogoutSuccessfully()
     {
         //User::truncate();
-        $this->populateUser();
+        self::populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username);
         $env = Environment::mock([
