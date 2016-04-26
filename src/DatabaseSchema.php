@@ -15,7 +15,7 @@ class DatabaseSchema
     {
         if (!Capsule::schema()->hasTable('users')) {
             Capsule::schema()->create('users', function (Blueprint $table) {
-                $table->increments('id');
+                $table->increments('id')->unsigned;
                 $table->string('fullname');
                 $table->string('username')->unique();
                 $table->string('password');
@@ -31,7 +31,7 @@ class DatabaseSchema
     {
         if (!Capsule::schema()->hasTable('emojis')) {
             Capsule::schema()->create('emojis', function (Blueprint $table) {
-                $table->increments('id');
+                $table->increments('id')->unsigned;
                 $table->string('name');
                 $table->string('chars');
                 $table->string('category');
@@ -53,7 +53,7 @@ class DatabaseSchema
     {
         if (!Capsule::schema()->hasTable('keywords')) {
             Capsule::schema()->create('keywords', function (Blueprint $table) {
-                $table->increments('id');
+                $table->increments('id')->unsigned();
                 $table->integer('emoji_id')->unsigned();
                 $table->string('name');
                 $table->timestamps();
