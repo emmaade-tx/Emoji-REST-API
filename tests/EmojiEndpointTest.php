@@ -184,23 +184,45 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         return $token;
     }
 
-    private function populateUser()
+    private static function populateUser()
     {
-        User::create([
-            'fullname' => 'John Tester',
-            'username' => 'tester',
-            'password' => 'test',
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-        ]);
+        Capsule::beginTransaction();
+        try {
+            $user = User::firstOrCreate([
+                'fullname' => 'John Tester',
+                'username' => 'tester', 
+                'password' => password_hash('test', PASSWORD_DEFAULT), 
+            ]);
 
-        User::create([
-            'fullname' => 'Paul Tester',
-            'username' => 'Paul',
-            'password' => 'tests',
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-        ]);
+            $user2 = User::firstOrCreate([
+                'fullname' => 'Paul Tester',
+                 'username' => 'tester2', 
+                 'password' => password_hash('test', PASSWORD_DEFAULT),
+            ]);
+
+            Capsule::commit();
+        } catch (\Exception $e) {
+            Capsule::rollback();
+            throw $e;
+        }
+        
+        return $user;
+
+        // User::create([
+        //     'fullname' => 'John Tester',
+        //     'username' => 'tester',
+        //     'password' => 'test',
+        //     'created_at' => Carbon::now()->toDateTimeString(),
+        //     'updated_at' => Carbon::now()->toDateTimeString(),
+        // ]);
+
+        // User::create([
+        //     'fullname' => 'Paul Tester',
+        //     'username' => 'Paul',
+        //     'password' => 'tests',
+        //     'created_at' => Carbon::now()->toDateTimeString(),
+        //     'updated_at' => Carbon::now()->toDateTimeString(),
+        // ]);
     }
 
     private function populateEmoji()
