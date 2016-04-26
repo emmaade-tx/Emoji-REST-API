@@ -781,9 +781,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        keyword::truncate();
-        Emoji::truncate();
-        User::truncate();
+        keyword::all()->delete;
+        Emoji::all()->delete;
+        User::all()->delete;
     }
 }
     
