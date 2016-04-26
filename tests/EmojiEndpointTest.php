@@ -275,8 +275,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'a brand new emoji',
-            'chars'      => '91-bnew',
+            'name'       => 'a new kind of emoji',
+            'chars'      => '91-kindnew',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -545,7 +545,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     {
         //User::truncate();
         $this->populateUser();
-        $user = User::find(1);
+        $user = User::find(2);
         $token = $this->generateToken($user->username);
 
         $env = Environment::mock([
