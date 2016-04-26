@@ -40,7 +40,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'APP_SECRET    = secretKey',
             'JWT_ALGORITHM = HS512',
             '[Database]',
-            'driver = mysql',
+            'driver=mysql',
             'host=localhost:33060',
             'username=homestead',
             'password=secret',
@@ -50,10 +50,12 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ];
 
         foreach($contents as $content) {
-            $file = fopen($this->configFile, 'a');
+
+        $file = fopen($this->configFile, 'a');
+
             fwrite($file, $content."\n");
-        }
-        
+        };
+
         fclose($file);
 
         $this->app = (new App("vfs://home/"))->get();

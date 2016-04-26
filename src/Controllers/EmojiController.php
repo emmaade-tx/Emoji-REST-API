@@ -109,7 +109,8 @@ class EmojiController
      */
     public function CreateEmoji($request, $response, $requestParams)
     {
-        $requestParams     = $request->getParsedBody();
+        //dd('I love this');
+        $requestParams    = $request->getParsedBody();
         $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
 
         if (is_array($validateUserData)) {
@@ -153,8 +154,7 @@ class EmojiController
      */
     public function updateEmojiByPatch($request, $response, $args)
     {
-        $updateParams = $request->getParsedBody();
-
+        $updateParams     = $request->getParsedBody();
         $validateUserData = $this->authController->validateUserData(['name'], $updateParams);
        
         if (is_array($validateUserData)) {
@@ -185,7 +185,6 @@ class EmojiController
     public function updateEmojiByPut($request, $response, $args)
     {
         $updateParams = $request->getParsedBody();
-
         $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category'], $updateParams);
        
         if (is_array($validateUserData)) {
