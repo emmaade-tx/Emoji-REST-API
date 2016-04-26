@@ -17,9 +17,9 @@ class DatabaseSchema
             Capsule::schema()->create('users', function (Blueprint $table) {
                 $table->engine = 'InnoDB';
 
-                $table->increments('id');
+                $table->increments('id')->unsigned();
                 $table->string('fullname');
-                $table->string('username');
+                $table->string('username')->unique();
                 $table->string('password');
                 $table->timestamps();
             });
@@ -35,7 +35,7 @@ class DatabaseSchema
             Capsule::schema()->create('emojis', function (Blueprint $table) {
                 $table->engine = 'InnoDB';
 
-                $table->increments('id');
+                $table->increments('id')->unsigned();
                 $table->string('name');
                 $table->string('chars');
                 $table->string('category');
@@ -57,7 +57,7 @@ class DatabaseSchema
         if (!Capsule::schema()->hasTable('keywords')) {
             Capsule::schema()->create('keywords', function (Blueprint $table) {
                 $table->engine = 'InnoDB';
-                
+
                 $table->increments('id');
                 $table->integer('emoji_id')->unsigned();
                 $table->string('name');
