@@ -25,7 +25,7 @@ class DatabaseSchema
     }
 
     /**
-     * Create emojies table
+     * Create emojis table
      */
     public function createEmojisTable()
     {
@@ -40,8 +40,7 @@ class DatabaseSchema
 
                 $table->foreign('created_by')
                     ->references('username')
-                    ->on('users')
-                    ->onDelete('cascade');
+                    ->on('users');
             });
         }
     }
@@ -60,8 +59,7 @@ class DatabaseSchema
 
                 $table->foreign('emoji_id')
                     ->references('id')
-                    ->on('emojis')
-                    ->onDelete('cascade');
+                    ->on('emojis');
             });
         }
     }
