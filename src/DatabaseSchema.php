@@ -17,29 +17,9 @@ class DatabaseSchema
             Capsule::schema()->create('users', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('fullname');
-                $table->string('username');
+                $table->string('username')->unique();
                 $table->string('password');
                 $table->timestamps();
-            });
-        }
-    }
-
-    /**
-     * Create keywords table
-     */
-    public function createKeywordsTable()
-    {
-        if (!Capsule::schema()->hasTable('keywords')) {
-            Capsule::schema()->create('keywords', function (Blueprint $table) {
-                $table->increments('id');
-                $table->integer('emoji_id')->unsigned();
-                $table->string('name');
-                $table->timestamps();
-
-                $table->foreign('emoji_id')
-                    ->references('id')
-                    ->on('emojis')
-                    ->delete('cascade');
             });
         }
     }
@@ -61,6 +41,26 @@ class DatabaseSchema
                 $table->foreign('created_by')
                     ->references('username')
                     ->on('users')
+                    ->delete('cascade');
+            });
+        }
+    }
+
+    /**
+     * Create keywords table
+     */
+    public function createKeywordsTable()
+    {
+        if (!Capsule::schema()->hasTable('keywords')) {
+            Capsule::schema()->create('keywords', function (Blueprint $table) {
+                $table->increments('id');
+                $table->integer('emoji_id')->unsigned();
+                $table->string('name');
+                $table->timestamps();
+
+                $table->foreign('emoji_id')
+                    ->references('id')
+                    ->on('emojis')
                     ->delete('cascade');
             });
         }
