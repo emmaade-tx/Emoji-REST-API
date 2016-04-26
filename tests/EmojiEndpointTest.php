@@ -204,8 +204,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'username' => 'test',
-            'password' => 'test',
+            'username' => 'tetes',
+            'password' => 'tets',
         ]);
 
         $this->app->getContainer()['request'] = $req;
@@ -364,6 +364,14 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     
     public function testThatInCorrectLoginCredentialWereUsedToLogin()
     {
+        User::create([
+            'fullname'   => 'John test',
+            'username'   => 'tester',
+            'password'   => 'test'
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
+
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/auth/login',
