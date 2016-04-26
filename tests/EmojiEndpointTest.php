@@ -546,7 +546,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //User::truncate();
         $this->populateUser();
         $user = User::find(2);
-        $token = $this->getLoginTokenForTestUser();
+        $token = $this->generateToken($user->id);
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'PUT',
@@ -635,7 +635,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //User::truncate();
         $this->populateUser();
         $user = User::find(2);
-        $token = $this->getLoginTokenForTestUser();
+        $token = $this->generateToken($user->id);
         
 
         $env = Environment::mock([
@@ -750,7 +750,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //User::truncate();
         $this->populateUser();
         $user = User::find(2);
-        $token = $this->getLoginTokenForTestUser();
+        $token = $this->generateToken($user->id);
 
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'DELETE',
@@ -837,7 +837,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         //User::truncate();
         $this->populateUser();
         $user = User::find(1);
-        $token = $this->generateToken($user->Id);
+        $token = $this->generateToken($user->username);
         $env = Environment::mock([
             'REQUEST_METHOD'     => 'GET',
             'REQUEST_URI'        => '/auth/logout',
