@@ -6,8 +6,6 @@
  */
 namespace Tests;
 
-require __DIR__.'/../vendor/autoload.php';
-
 use Demo\App;
 use Demo\User;
 use Exception;
