@@ -223,9 +223,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $body = [
-            'fullname' => 'John test',
-            'username' => 'tester',
-            'password' => 'test',
+            'fullname' => 'John tests',
+            'username' => 'testers',
+            'password' => 'tests',
         ];
 
         $req = Request::createFromEnvironment($env)->withParsedBody($body);
@@ -249,8 +249,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'username' => 'tester',
-            'password' => 'test',
+            'username' => 'testers',
+            'password' => 'tests',
         ]);
 
         $this->app->getContainer()['request'] = $req;
@@ -275,8 +275,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'a new kinds of emoji',
-            'chars'      => '91-kindsnew',
+            'name'       => 'new kinds of emoji',
+            'chars'      => '91-kinds',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -315,8 +315,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'a new kinds of emoji',
-            'chars'      => '91-kindsnew',
+            'name'       => 'new kinds of emoji',
+            'chars'      => '91-kinds',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
