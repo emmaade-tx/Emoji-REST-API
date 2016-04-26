@@ -111,7 +111,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    public function testPostIndex()
+    public function testnotPostIndex()
     {
         $this->postIndex('/', ['ACCEPT' => 'application/json']);
         $this->assertEquals('404', $this->response->getStatusCode());
@@ -224,8 +224,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $body = [
             'fullname' => 'John tests',
-            'username' => 'testers',
-            'password' => 'tests',
+            'username' => 'tetes',
+            'password' => 'tets',
         ];
 
         $req = Request::createFromEnvironment($env)->withParsedBody($body);
@@ -249,8 +249,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'username' => 'testers',
-            'password' => 'tests',
+            'username' => 'tetes',
+            'password' => 'tets',
         ]);
 
         $this->app->getContainer()['request'] = $req;
@@ -275,8 +275,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'new kinds of emoji',
-            'chars'      => '91-kinds',
+            'name'       => 'anew kind',
+            'chars'      => '70-kinds',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -315,8 +315,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'new kinds of emoji',
-            'chars'      => '91-kinds',
+            'name'       => 'anew kind',
+            'chars'      => '70-kinds',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
