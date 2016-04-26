@@ -66,6 +66,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->schema->createKeywordsTable();
     }
 
+    public function tearDown()
+    {
+        $this->schema->down();
+    }
+
     public function request($method, $path, $options = [])
     {
         // Prepare a mock environment
@@ -779,11 +784,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
-    public function tearDown()
-    {
-        keyword::all()->delete;
-        Emoji::all()->delete;
-        User::all()->delete;
-    }
+    
 }
     

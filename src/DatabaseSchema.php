@@ -65,4 +65,11 @@ class DatabaseSchema
             });
         }
     }
+
+    public function down()
+    {
+        Capsule::schema()->drop('keywords');
+        Capsule::schema()->drop('emojis');
+        Capsule::schema()->drop('users');
+    }
 }
