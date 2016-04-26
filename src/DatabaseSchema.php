@@ -15,33 +15,11 @@ class DatabaseSchema
     {
         if (!Capsule::schema()->hasTable('users')) {
             Capsule::schema()->create('users', function (Blueprint $table) {
-                $table->increments('id')->unsigned;
+                $table->increments('id');
                 $table->string('fullname');
                 $table->string('username');
                 $table->string('password');
                 $table->timestamps();
-            });
-        }
-    }
-
-    /**
-     * Create emojis table
-     */
-    public function createEmojisTable()
-    {
-        if (!Capsule::schema()->hasTable('emojis')) {
-            Capsule::schema()->create('emojis', function (Blueprint $table) {
-                $table->increments('id')->unsigned;
-                $table->string('name');
-                $table->string('chars');
-                $table->string('category');
-                $table->string('created_by');
-                $table->timestamps();
-
-                $table->foreign('created_by')
-                    ->references('username')
-                    ->on('users')
-                    ->delete('cascade');
             });
         }
     }
@@ -61,6 +39,28 @@ class DatabaseSchema
                 $table->foreign('emoji_id')
                     ->references('id')
                     ->on('emojis')
+                    ->delete('cascade');
+            });
+        }
+    }
+
+    /**
+     * Create emojis table
+     */
+    public function createEmojisTable()
+    {
+        if (!Capsule::schema()->hasTable('emojis')) {
+            Capsule::schema()->create('emojis', function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('name');
+                $table->string('chars');
+                $table->string('category');
+                $table->string('created_by');
+                $table->timestamps();
+
+                $table->foreign('created_by')
+                    ->references('username')
+                    ->on('users')
                     ->delete('cascade');
             });
         }
