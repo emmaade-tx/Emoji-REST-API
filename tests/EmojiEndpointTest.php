@@ -168,8 +168,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $body = [
-            'fullname' => 'John tests',
-            'username' => 'tetes',
+            'fullname' => 'Gabit tests',
+            'username' => 'gads',
             'password' => 'tets',
         ];
 
@@ -214,8 +214,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'babalaw',
-            'chars'      => 'u70m7d5',
+            'name'       => 'babala',
+            'chars'      => 'u70m7d',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -250,8 +250,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'babalawo',
-            'chars'      => 'u70m7d5s',
+            'name'       => 'babala',
+            'chars'      => 'u70m7d',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
