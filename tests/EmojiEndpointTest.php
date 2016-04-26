@@ -124,13 +124,13 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    public function testGetIndex()
+    public function tesnotGetIndex()
     {
         $this->get('/', ['ACCEPT' => 'application/json']);
         $this->assertEquals('200', $this->response->getStatusCode());
     }
 
-    public function testPHPUnitWarningSuppressor()
+    public function tesnotPHPUnitWarningSuppressor()
     {
         $this->assertTrue(true);
     }
@@ -291,9 +291,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $result = json_decode($response->getBody(), true);
-        $data = ['message' => 'Emoji has been created successfully'];
+        $data = ['message' => 'The emoji already exist in the database.'];
         $this->assertEquals($data, $result);
-        $this->assertSame($response->getStatusCode(), 201);
+        $this->assertSame($response->getStatusCode(), 400);
     }
 
     public function testPostEmojiALreadyExit()
