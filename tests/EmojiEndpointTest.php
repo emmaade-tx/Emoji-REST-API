@@ -41,9 +41,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'JWT_ALGORITHM = HS512',
             '[Database]',
             'driver=mysql',
-            'host=localhost',
-            'username=root',
-            'password=',
+            'host=localhost:33060',
+            'username=homestead',
+            'password=secret',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
@@ -159,28 +159,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         return $jwt;
     }
 
-    public function testCreateUser()
-    {
-        $env = Environment::mock([
-            'REQUEST_METHOD' => 'POST',
-            'REQUEST_URI'    => '/auth/register',
-            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
-        ]);
-
-        $body = [
-            'fullname' => 'Gabit tests',
-            'username' => 'gladys',
-            'password' => 'tets',
-        ];
-
-        $req = Request::createFromEnvironment($env)->withParsedBody($body);
-        $this->app->getContainer()['request'] = $req;
-        $response = $this->app->run(true);
-        $result = json_decode($response->getBody(), true);
-        //$this->assertEquals($result['message'], 'User successfully created.');
-        $this->assertSame($response->getStatusCode(), 201);
-    }
-
     public function testuserLogin()
     {
         $env = Environment::mock([
@@ -214,8 +192,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'babal',
-            'chars'      => 'u70m7',
+            'name'       => 'grinner',
+            'chars'      => 'u70m0',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -348,27 +326,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $data = ['message' => 'Unwanted fields must be removed'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 400);
-    }
-    
-    public function testThatInCorrectLoginCredentialWereUsedToLogin()
-    {
-        $env = Environment::mock([
-            'REQUEST_METHOD' => 'POST',
-            'REQUEST_URI'    => '/auth/login',
-            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
-            'PATH_INFO'      => '/auth',
-        ]);
-        $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody([
-            'username' => 'tester',
-            'password' => 'xxxx',
-        ]);
-        $req = $req->withAttribute('issTime', 1440295673);
-
-        $userData = $req->getParsedBody();
-        $this->app->getContainer()['request'] = $req;
-        $response = $this->app->run(true);
-        $this->assertSame($response->getStatusCode(), 500);
     }
 
     public function testgetAllEmojis()
