@@ -6,6 +6,8 @@
  */
 namespace Tests;
 
+require __DIR__.'/vendor/autoload.php';
+
 use Demo\App;
 use Demo\User;
 use Exception;
@@ -111,7 +113,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    public function tesnotPostIndex()
+    public function testPostIndex()
     {
         $this->postIndex('/', ['ACCEPT' => 'application/json']);
         $this->assertEquals('404', $this->response->getStatusCode());
@@ -124,13 +126,13 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    public function tesnotGetIndex()
+    public function testGetIndex()
     {
         $this->get('/', ['ACCEPT' => 'application/json']);
         $this->assertEquals('200', $this->response->getStatusCode());
     }
 
-    public function tesnotPHPUnitWarningSuppressor()
+    public function testPHPUnitWarningSuppressor()
     {
         $this->assertTrue(true);
     }
