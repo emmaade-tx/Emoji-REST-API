@@ -323,7 +323,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     public function testPostEmojiALreadyExit()
     {
         //User::truncate();
-        self::populateUser()();
+        self::populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username, 1440295673);
 
