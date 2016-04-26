@@ -159,18 +159,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         return $jwt;
     }
 
-    private function populateEmoji()
-    {
-        $emoji = Emoji::create([
-            'name'       => 'Grinning face',
-            'chars'      => 'u-t1789',
-            'category'   => 'Category A',
-            'keywords'   => 'happy',
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-        ]);
-    }
-
     public function testCreateUser()
     {
         $env = Environment::mock([
@@ -367,11 +355,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         User::create([
             'fullname'   => 'John test',
             'username'   => 'tester',
-            'password'   => 'test'
+            'password'   => 'test',
             'created_at' => Carbon::now()->toDateTimeString(),
             'updated_at' => Carbon::now()->toDateTimeString(),
-        ]);
-    }    
+        ]);  
 
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
