@@ -778,5 +778,12 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $data = json_decode($response->getBody(), true);
         $this->assertSame($response->getStatusCode(), 401);
     }
+
+    public function tearDown()
+    {
+        keyword::truncate();
+        Emoji::truncate();
+        User::truncate();
+    }
 }
     
