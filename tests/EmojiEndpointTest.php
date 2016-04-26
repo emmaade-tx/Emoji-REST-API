@@ -178,7 +178,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $response = $this->app->run(true);
         $result = json_decode($response->getBody(), true);
         //$this->assertEquals($result['message'], 'User successfully created.');
-        $this->assertSame($response->getStatusCode(), 409);
+        $this->assertSame($response->getStatusCode(), 201);
     }
 
     public function testuserLogin()
@@ -234,7 +234,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $result = json_decode($response->getBody(), true);
         //$data = ['message' => 'Emoji has been created successfully'];
         //$this->assertEquals($data, $result);
-        $this->assertSame($response->getStatusCode(), 201);
+        $this->assertSame($response->getStatusCode(), 400);
     }
 
     public function testPostEmojiALreadyExit()
