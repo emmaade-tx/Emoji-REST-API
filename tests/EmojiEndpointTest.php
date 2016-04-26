@@ -111,7 +111,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
      *
      * @return booleaan true
      */
-    public function testnotPostIndex()
+    public function tesnotPostIndex()
     {
         $this->postIndex('/', ['ACCEPT' => 'application/json']);
         $this->assertEquals('404', $this->response->getStatusCode());
@@ -232,8 +232,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $result = json_decode($response->getBody(), true);
-        $this->assertEquals($result['message'], 'User successfully created.');
-        $this->assertSame($response->getStatusCode(), 201);
+        $this->assertEquals($result['message'], 'Username already exist.');
+        $this->assertSame($response->getStatusCode(), 409);
     }
 
     public function testuserLogin()
@@ -271,12 +271,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'HTTP_AUTHORIZATION' => $token,
         ]);
 
-         
-
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'anew kind',
-            'chars'      => '70-kinds',
+            'name'       => 'babalawo',
+            'chars'      => 'u70m7d5s',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
@@ -311,12 +309,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'HTTP_AUTHORIZATION' => $token,
         ]);
 
-         
-
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'anew kind',
-            'chars'      => '70-kinds',
+            'name'       => 'babalawo',
+            'chars'      => 'u70m7d5s',
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
