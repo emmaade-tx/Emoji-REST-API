@@ -26,10 +26,10 @@ class AuthMiddleware
 
         try {
            if (!empty($authHeader)) {
-                $secretKey    = getenv('APP_SECRET');
-                $jwt          = $authHeader[0];    
-                $decodedToken = JWT::decode($jwt, $secretKey, ['HS512']);
-               
+                $appSecret    = getenv('APP_SECRET');
+                $jwt          = $authHeader[0];   
+                $decodedToken = JWT::decode($jwt, $appSecret, ['HS512']);
+                
                 return $next($request, $response);
             }
         } catch (Exception $e) {

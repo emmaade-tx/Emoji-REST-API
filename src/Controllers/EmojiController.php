@@ -238,12 +238,12 @@ class EmojiController
 
         try {
             if (isset($jwtoken)) {
-                $secretKey    = getenv('APP_SECRET');
+                $appSecret    = getenv('APP_SECRET');
                 $jwt          = $jwtoken[0];
-                $decodedToken = JWT::decode($jwt, $secretKey, ['HS512']);
+                $decodedToken = JWT::decode($jwt, $appSecret, ['HS512']);
                 $tokenInfo    = (array) $decodedToken;
                 $userInfo     = (array) $tokenInfo['data'];
-                //dd($userInfo['username']);
+            
                 return $userInfo['username'];
             }
         } catch (Exception $e) {
