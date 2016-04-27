@@ -65,4 +65,14 @@ class DatabaseSchema
             });
         }
     }
+
+    /**
+     * This method dropdown the table
+     */
+    public function down()
+    {
+        schema::drop('keywords');
+        schema::drop('emojis');
+        schema::drop('users');
+    }
 }

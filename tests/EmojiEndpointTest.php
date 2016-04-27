@@ -66,6 +66,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->schema->createKeywordsTable();
     }
 
+    public function tearDown()
+    {
+        $this->schema->down();
+    }
+
     public function request($method, $path, $options = [])
     {
         // Prepare a mock environment
