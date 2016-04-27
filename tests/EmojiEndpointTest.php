@@ -567,7 +567,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $result = ['message' => 'The argument supplied must be an integer.'];
+        $result = ['message' => 'The id supplied must be an integer.'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 401);
     }
@@ -636,7 +636,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     /*
      * This function test for editing emoji with put with invalid id
      */
-    public function testEditEmojiWithPutWithInvalidID()
+    public function testEditEmojiWithPutWithUnExistId()
     {
         $user = User::find(1);
         $token = $this->generateToken($user->username);
@@ -658,7 +658,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $result = ['message' => 'Action cannot be performed because the id supplied is invalid'];
+        $result = ['message' => 'Action cannot be performed because the id supplied must be an integer'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 401);
     }
@@ -723,7 +723,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     /*
      * This function test for editing emoji partially with invalid id
      */
-    public function testEditEmojiPartiallyWithInvalidID()
+    public function testEditEmojiPartiallyWithUnExistId()
     {
         $user = User::find(1);
         $token = $this->generateToken($user->username);
@@ -743,7 +743,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $result = ['message' => 'Action cannot be performed because the id supplied is invalid'];
+        $result = ['message' => 'Action cannot be performed because the id supplied must be an integer'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 401);
     }
@@ -771,7 +771,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $result = ['message' => 'The argument supplied must be an integer.'];
+        $result = ['message' => 'The id supplied must be an integer.'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 401);
     }
@@ -801,7 +801,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $result = ['message' => 'The argument supplied must be an integer.'];
+        $result = ['message' => 'The id supplied must be an integer.'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 401);
     }
@@ -849,7 +849,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $result = ['message' => 'The argument supplied must be an integer.'];
+        $result = ['message' => 'The id supplied must be an integer.'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 401);
     }
@@ -857,7 +857,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     /*
      * This function test for deleting emoji with invalid id
      */
-    public function testDeleteEmojiWithInvalidId()
+    public function testDeleteEmojiWithUnExistId()
     {
         $user = User::find(1);
         $token = $this->generateToken($user->username);
@@ -873,7 +873,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $data = json_decode($response->getBody(), true);
-        $result = ['message' => 'Action cannot be performed because the id supplied is invalid'];
+        $result = ['message' => 'Action cannot be performed because the id supplied must be an integer'];
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 401);
     }
