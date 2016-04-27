@@ -21,26 +21,26 @@ class AuthController
      *
      * @return json response
      */
-    // public function login($request, $response)
-    // {
-    //     $userData         = $request->getParsedBody();
-    //     $validateResponse = $this->validateUserData(['username', 'password'], $userData);
+    public function login($request, $response)
+    {
+        $userData         = $request->getParsedBody();
+        $validateResponse = $this->validateUserData(['username', 'password'], $userData);
 
-    //     if (is_array($validateResponse)) {
-    //         return $response->withJson($validateResponse, 400);
-    //     }
+        if (is_array($validateResponse)) {
+            return $response->withJson($validateResponse, 400);
+        }
 
-    //     $user = $this->authenticate($userData['username'], $userData['password']);
+        $user = $this->authenticate($userData['username'], $userData['password']);
 
-    //     if (!$user) {
-    //         return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
-    //     }
+        if (!$user) {
+            return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
+        }
 
-    //     $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
-    //     $token   = $this->generateToken($user->username, $issTime);
+        $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
+        $token   = $this->generateToken($user->username, $issTime);
     
-    //     return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
-    // }
+        return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
+    }
 
     /**
      * Generate a token for user with passed Id.
@@ -49,25 +49,25 @@ class AuthController
      *
      * @return string
      */
-    // private function generateToken($username, $time = null)
-    // {
-    //     $time         = $time == null ? time() : $time;
-    //     $appSecret    = getenv('APP_SECRET');
-    //     $jwtAlgorithm = getenv('JWT_ALGORITHM');
-    //     $timeIssued   = $time;
-    //     $tokenId      = base64_encode($time);
-    //     $token = [
-    //         'iat'     => $timeIssued,   // Issued at: time when the token was generated
-    //         'jti'     => $tokenId,          // Json Token Id: an unique identifier for the token
-    //         'nbf'     => $timeIssued, //Not before time
-    //         'exp'     => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
-    //         'data'    => [                  // Data related to the signer user
-    //             'username'  => $username, // userid from the users tableu;
-    //         ],
-    //     ];
+    private function generateToken($username, $time = null)
+    {
+        $time         = $time == null ? time() : $time;
+        $appSecret    = getenv('APP_SECRET');
+        $jwtAlgorithm = getenv('JWT_ALGORITHM');
+        $timeIssued   = $time;
+        $tokenId      = base64_encode($time);
+        $token = [
+            'iat'     => $timeIssued,   // Issued at: time when the token was generated
+            'jti'     => $tokenId,          // Json Token Id: an unique identifier for the token
+            'nbf'     => $timeIssued, //Not before time
+            'exp'     => $timeIssued + 60 * 60 * 24 * 30, // expires in 30 days
+            'data'    => [                  // Data related to the signer user
+                'username'  => $username, // userid from the users tableu;
+            ],
+        ];
 
-    //     return JWT::encode($token, $appSecret, $jwtAlgorithm);
-    // }
+        return JWT::encode($token, $appSecret, $jwtAlgorithm);
+    }
 
     /**
      * Register a user.
@@ -77,35 +77,35 @@ class AuthController
      *
      * @return json response
      */
-    // public function register($request, $response)
-    // {
-    //     $requestParams    = $request->getParsedBody();
-    //     $validateUserData = $this->validateUserData(['fullname', 'username', 'password'], $requestParams);
+    public function register($request, $response)
+    {
+        $requestParams    = $request->getParsedBody();
+        $validateUserData = $this->validateUserData(['fullname', 'username', 'password'], $requestParams);
 
-    //     if (is_array($validateUserData)) {
-    //         return $response->withJson($validateUserData, 400);
-    //     }
+        if (is_array($validateUserData)) {
+            return $response->withJson($validateUserData, 400);
+        }
 
-    //     $validateEmptyInput = $this->checkEmptyInput($requestParams['fullname'], $requestParams['username'], $requestParams['password']);
+        $validateEmptyInput = $this->checkEmptyInput($requestParams['fullname'], $requestParams['username'], $requestParams['password']);
 
-    //     if (is_array($validateEmptyInput)) {
-    //         return $response->withJson($validateEmptyInput, 401);
-    //     }
+        if (is_array($validateEmptyInput)) {
+            return $response->withJson($validateEmptyInput, 401);
+        }
 
-    //     if (User::where('username', $requestParams['username'])->first()) {
-    //         return $response->withJson(['message' => 'Username already exist.'], 409);
-    //     }
+        if (User::where('username', $requestParams['username'])->first()) {
+            return $response->withJson(['message' => 'Username already exist.'], 409);
+        }
 
-    //     User::create([
-    //         'fullname'   => $requestParams['fullname'],
-    //         'username'   => strtolower($requestParams['username']),
-    //         'password'   => password_hash($requestParams['password'], PASSWORD_DEFAULT),
-    //         'created_at' => Carbon::now()->toDateTimeString(),
-    //         'updated_at' => Carbon::now()->toDateTimeString(),
-    //     ]);
+        User::create([
+            'fullname'   => $requestParams['fullname'],
+            'username'   => strtolower($requestParams['username']),
+            'password'   => password_hash($requestParams['password'], PASSWORD_DEFAULT),
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
 
-    //     return $response->withJson(['message' => 'User successfully created.'], 201);
-    // }
+        return $response->withJson(['message' => 'User successfully created.'], 201);
+    }
 
     /**
      * This method logout the user.
@@ -120,14 +120,14 @@ class AuthController
         return $response->withJson(['message' => 'Logout successful'], 200);
     }
 
-    *
+    /**
      * Authenticate username and password against database.
      *
      * @param string $username
      * @param string $password
      *
      * @return bool
-     
+     */
     private function authenticate($username, $password)
     {
         $user = User::where('username', $username)->first();
@@ -145,36 +145,36 @@ class AuthController
      *
      * @return bool
      */
-    // public function validateUserData($expectedFields, $userData)
-    // {
-    //     $tableFields = [];
-    //     $tableValues = [];
+    public function validateUserData($expectedFields, $userData)
+    {
+        $tableFields = [];
+        $tableValues = [];
 
-    //     foreach ($userData as $key => $val) {
-    //         $tableFields[] = $key;
-    //         $tableValues[] = $val;
-    //     }
+        foreach ($userData as $key => $val) {
+            $tableFields[] = $key;
+            $tableValues[] = $val;
+        }
 
-    //     $result = array_diff($expectedFields, $tableFields);
+        $result = array_diff($expectedFields, $tableFields);
 
-    //     if (count($result) > 0 && empty($userData)) {
-    //         return ['message' => 'All fields must be provided.'];
-    //     }
+        if (count($result) > 0 && empty($userData)) {
+            return ['message' => 'All fields must be provided.'];
+        }
 
-    //     $tableValues = implode('', $tableValues);
+        $tableValues = implode('', $tableValues);
 
-    //     if (empty($tableValues)) {
-    //         return ['message' => 'All fields are required'];
-    //     }
+        if (empty($tableValues)) {
+            return ['message' => 'All fields are required'];
+        }
 
-    //     foreach ($userData as $key => $val) {
-    //         if (!in_array($key, $expectedFields)) {
-    //             return ['message' => 'Unwanted fields must be removed'];
-    //         }
-    //     }
+        foreach ($userData as $key => $val) {
+            if (!in_array($key, $expectedFields)) {
+                return ['message' => 'Unwanted fields must be removed'];
+            }
+        }
 
-    //     return true;
-    // }
+        return true;
+    }
 
     /**
      * This method checks for empty input from user.
@@ -186,12 +186,12 @@ class AuthController
      *
      * @return bool
      */
-    // public function checkEmptyInput($inputFullname, $inputUsername, $inputPassword)
-    // {
-    //     if (empty($inputFullname) || empty($inputUsername) || empty($inputPassword)) {
-    //         return ['message' => 'All fields must be provided.'];
-    //     }
+    public function checkEmptyInput($inputFullname, $inputUsername, $inputPassword)
+    {
+        if (empty($inputFullname) || empty($inputUsername) || empty($inputPassword)) {
+            return ['message' => 'All fields must be provided.'];
+        }
 
-    //     return true;
-    // }
+        return true;
+    }
 }
