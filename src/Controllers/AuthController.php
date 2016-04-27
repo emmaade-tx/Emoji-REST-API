@@ -53,7 +53,7 @@ class AuthController
     {
         $time         = $time == null ? time() : $time;
         $appSecret    = getenv('APP_SECRET');
-        $jwtAlgorithm = getenv('JWT_ALGORITHM');
+        //$jwtAlgorithm = getenv('JWT_ALGORITHM');
         $timeIssued   = $time;
         $tokenId      = base64_encode($appSecret);
         $token = [
@@ -66,7 +66,7 @@ class AuthController
             ],
         ];
 
-        return JWT::encode($token, $appSecret, $jwtAlgorithm);
+        return JWT::encode($token, $appSecret, ['HS512']);
     }
 
     /**
