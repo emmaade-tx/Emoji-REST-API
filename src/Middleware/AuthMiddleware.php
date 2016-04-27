@@ -6,7 +6,7 @@
  */
 namespace Demo;
 
-use Exception;
+//use Exception;
 use Firebase\JWT\JWT;
 
 class AuthMiddleware
