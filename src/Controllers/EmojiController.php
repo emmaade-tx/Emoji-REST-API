@@ -34,37 +34,37 @@ class EmojiController
      *
      * @return Slim\Http\Response
      */
-    public function getAllEmojis($request, $response)
-    {
-        $emojis = Emoji::all();
+    // public function getAllEmojis($request, $response)
+    // {
+    //     $emojis = Emoji::all();
         
-        if (!count($emojis) > 0) {
-            return $response->withJson(['message' => 'Oops, No Emoji to display'], 404);
-        }
+    //     if (!count($emojis) > 0) {
+    //         return $response->withJson(['message' => 'Oops, No Emoji to display'], 404);
+    //     }
 
-        $emojiArray = [];
+    //     $emojiArray = [];
 
-        foreach($emojis as $emoji) {
-            $emojiProperty = [
-                'id'         => $emoji->id,
-                'name'       => $emoji->name, 
-                'chars'      => $emoji->chars, 
-                'category'   => $emoji->category,
-                'created_by' => $emoji->created_by
-            ];
+    //     foreach($emojis as $emoji) {
+    //         $emojiProperty = [
+    //             'id'         => $emoji->id,
+    //             'name'       => $emoji->name, 
+    //             'chars'      => $emoji->chars, 
+    //             'category'   => $emoji->category,
+    //             'created_by' => $emoji->created_by
+    //         ];
 
-            $keywords = [];
+    //         $keywords = [];
 
-            foreach($emoji->keywords as $keyword) {
-                array_push($keywords, $keyword->name);
-            }
+    //         foreach($emoji->keywords as $keyword) {
+    //             array_push($keywords, $keyword->name);
+    //         }
             
-            $emojiProperty['keywords'] = $keywords;
-            $emojiArray[] = $emojiProperty;
-        }
+    //         $emojiProperty['keywords'] = $keywords;
+    //         $emojiArray[] = $emojiProperty;
+    //     }
 
-        return $response->withJson($emojiArray);
-    }
+    //     return $response->withJson($emojiArray);
+    // }
 
     /**
      * Get a single emoji.
@@ -75,28 +75,28 @@ class EmojiController
      *
      * @return Slim\Http\Response
      */
-    public function getSingleEmoji($request, $response, $args)
-    {
-        if (!is_numeric($args['id'])) {
-            return $response->withJson(['message' => 'The argument supplied must be an integer.'], 401);
-        }
+    // public function getSingleEmoji($request, $response, $args)
+    // {
+    //     if (!is_numeric($args['id'])) {
+    //         return $response->withJson(['message' => 'The argument supplied must be an integer.'], 401);
+    //     }
 
-        $emoji = Emoji::find($args['id']);
+    //     $emoji = Emoji::find($args['id']);
 
-        if (count($emoji) < 1) {
-            return $response->withJson(['message' => 'The requested Emoji is not found.'], 404);
-        }
+    //     if (count($emoji) < 1) {
+    //         return $response->withJson(['message' => 'The requested Emoji is not found.'], 404);
+    //     }
 
-        $keywords = [];
+    //     $keywords = [];
 
-        foreach ($emoji->keywords as $keyword) {
-            array_push($keywords, $keyword->name);
-        }
+    //     foreach ($emoji->keywords as $keyword) {
+    //         array_push($keywords, $keyword->name);
+    //     }
 
-        $emoji = ['id'=> $emoji->id, 'name' => $emoji->name, 'chars' => $emoji->chars, 'category' => $emoji->category, 'created_by' => $emoji->created_by, 'keywords' => $keywords];
+    //     $emoji = ['id'=> $emoji->id, 'name' => $emoji->name, 'chars' => $emoji->chars, 'category' => $emoji->category, 'created_by' => $emoji->created_by, 'keywords' => $keywords];
 
-        return $response->withJson($emoji);
-    }
+    //     return $response->withJson($emoji);
+    // }
 
     /**
      * This method creates emoji and keywords associated with it.

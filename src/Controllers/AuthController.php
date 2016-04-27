@@ -21,26 +21,26 @@ class AuthController
      *
      * @return json response
      */
-    public function login($request, $response)
-    {
-        $userData         = $request->getParsedBody();
-        $validateResponse = $this->validateUserData(['username', 'password'], $userData);
+    // public function login($request, $response)
+    // {
+    //     $userData         = $request->getParsedBody();
+    //     $validateResponse = $this->validateUserData(['username', 'password'], $userData);
 
-        if (is_array($validateResponse)) {
-            return $response->withJson($validateResponse, 400);
-        }
+    //     if (is_array($validateResponse)) {
+    //         return $response->withJson($validateResponse, 400);
+    //     }
 
-        $user = $this->authenticate($userData['username'], $userData['password']);
+    //     $user = $this->authenticate($userData['username'], $userData['password']);
 
-        if (!$user) {
-            return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
-        }
+    //     if (!$user) {
+    //         return $response->withJson(['message' => 'Username or Password field not valid.'], 400);
+    //     }
 
-        $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
-        $token   = $this->generateToken($user->username, $issTime);
+    //     $issTime = $request->getAttribute('issTime') == null ? time() : $request->getAttribute('issTime');
+    //     $token   = $this->generateToken($user->username, $issTime);
     
-        return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
-    }
+    //     return $response->withAddedHeader('HTTP_AUTHORIZATION', $token)->withStatus(200)->write($token);
+    // }
 
     /**
      * Generate a token for user with passed Id.
@@ -120,14 +120,14 @@ class AuthController
         return $response->withJson(['message' => 'Logout successful'], 200);
     }
 
-    /**
+    *
      * Authenticate username and password against database.
      *
      * @param string $username
      * @param string $password
      *
      * @return bool
-     */
+     
     private function authenticate($username, $password)
     {
         $user = User::where('username', $username)->first();
@@ -145,36 +145,36 @@ class AuthController
      *
      * @return bool
      */
-    public function validateUserData($expectedFields, $userData)
-    {
-        $tableFields = [];
-        $tableValues = [];
+    // public function validateUserData($expectedFields, $userData)
+    // {
+    //     $tableFields = [];
+    //     $tableValues = [];
 
-        foreach ($userData as $key => $val) {
-            $tableFields[] = $key;
-            $tableValues[] = $val;
-        }
+    //     foreach ($userData as $key => $val) {
+    //         $tableFields[] = $key;
+    //         $tableValues[] = $val;
+    //     }
 
-        $result = array_diff($expectedFields, $tableFields);
+    //     $result = array_diff($expectedFields, $tableFields);
 
-        if (count($result) > 0 && empty($userData)) {
-            return ['message' => 'All fields must be provided.'];
-        }
+    //     if (count($result) > 0 && empty($userData)) {
+    //         return ['message' => 'All fields must be provided.'];
+    //     }
 
-        $tableValues = implode('', $tableValues);
+    //     $tableValues = implode('', $tableValues);
 
-        if (empty($tableValues)) {
-            return ['message' => 'All fields are required'];
-        }
+    //     if (empty($tableValues)) {
+    //         return ['message' => 'All fields are required'];
+    //     }
 
-        foreach ($userData as $key => $val) {
-            if (!in_array($key, $expectedFields)) {
-                return ['message' => 'Unwanted fields must be removed'];
-            }
-        }
+    //     foreach ($userData as $key => $val) {
+    //         if (!in_array($key, $expectedFields)) {
+    //             return ['message' => 'Unwanted fields must be removed'];
+    //         }
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 
     /**
      * This method checks for empty input from user.
@@ -186,12 +186,12 @@ class AuthController
      *
      * @return bool
      */
-    public function checkEmptyInput($inputFullname, $inputUsername, $inputPassword)
-    {
-        if (empty($inputFullname) || empty($inputUsername) || empty($inputPassword)) {
-            return ['message' => 'All fields must be provided.'];
-        }
+    // public function checkEmptyInput($inputFullname, $inputUsername, $inputPassword)
+    // {
+    //     if (empty($inputFullname) || empty($inputUsername) || empty($inputPassword)) {
+    //         return ['message' => 'All fields must be provided.'];
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 }
