@@ -34,8 +34,7 @@ class AuthMiddleware
                 }
 
             } catch (Exception $e) {
-                return $next($request, $response);
-                //return $response->withJson(['status: Token invalid or Expired'], 500);
+                return $response->withJson(['status: Token invalid or Expired'], 500);
             }
        
         return $response->withJson(['message' => 'User unauthorized due to empty token'], 401);

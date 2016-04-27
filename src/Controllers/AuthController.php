@@ -55,7 +55,7 @@ class AuthController
         $appSecret    = getenv('APP_SECRET');
         $jwtAlgorithm = getenv('JWT_ALGORITHM');
         $timeIssued   = $time;
-        $tokenId      = base64_encode($appSecret);
+        $tokenId      = $appSecret;
         $token = [
             'iat'     => $timeIssued,   // Issued at: time when the token was generated
             'jti'     => $tokenId,          // Json Token Id: an unique identifier for the token
