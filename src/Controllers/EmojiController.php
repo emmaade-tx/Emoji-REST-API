@@ -356,6 +356,7 @@ class EmojiController
         
         if (count($emoji) < 1) {
             return ['message' => 'Action cannot be performed because the id supplied must be an integer'];
+        }    
 
         if (is_null($this->getTheOwner($request, $response, $args)->first())) {
             return ['message' => 'Action cannot be performed because you are not the creator'];
