@@ -44,9 +44,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'JWT_ALGORITHM = HS512',
             '[Database]',
             'driver=mysql',
-            'host=localhost',
-            'username=root',
-            'password=',
+            'host=localhost:33060',
+            'username=homestead',
+            'password=secret',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
@@ -251,7 +251,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     /*
      * This function test for user registration with right input
      */
-    public function testCreateUserWithoutEmptyInput()
+    public function testCreateUserWithEmptyInput()
     {
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',

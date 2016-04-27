@@ -21,7 +21,7 @@ To use this package, You need to set your environment variables. Define your dat
     port = port
     username = [Your username]	
     password = [Your password] 
-    database  = [Your databse]
+    database  = [Your database]
     
 Finally, boot-up the API service with PHP's Built-in web server:
 

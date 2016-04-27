@@ -78,7 +78,7 @@ class EmojiController
     public function getSingleEmoji($request, $response, $args)
     {
         if (!is_numeric($args['id'])) {
-            return $response->withJson(['message' => 'The argument supplied must be an integer.'], 401);
+            return $response->withJson(['message' => 'The id supplied must be an integer.'], 401);
         }
 
         $emoji = Emoji::find($args['id']);
@@ -349,14 +349,13 @@ class EmojiController
     public function validateArgs($request, $response, $args)
     {
         if (!is_numeric($args['id'])) {
-            return ['message' => 'The argument supplied must be an integer.'];
+            return ['message' => 'The id supplied must be an integer.'];
         }
 
         $emoji = Emoji::find($args['id']);
         
         if (count($emoji) < 1) {
-            return ['message' => 'Action cannot be performed because the id supplied is invalid'];
-        }
+            return ['message' => 'Action cannot be performed because the id supplied must be an integer']
 
         if (is_null($this->getTheOwner($request, $response, $args)->first())) {
             return ['message' => 'Action cannot be performed because you are not the creator'];
