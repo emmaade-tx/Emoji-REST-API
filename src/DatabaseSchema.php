@@ -71,8 +71,8 @@ class DatabaseSchema
      */
     public function down()
     {
-        schema::drop('keywords');
-        schema::drop('emojis');
-        schema::drop('users');
+        Capsule::schema()->drop('keywords');
+        Capsule::schema()->drop('emojis');
+        Capsule::schema()->drop('users');
     }
 }

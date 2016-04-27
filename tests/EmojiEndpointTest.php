@@ -64,6 +64,8 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->schema->createUsersTable();
         $this->schema->createEmojisTable();
         $this->schema->createKeywordsTable();
+        $this->populateUser();
+        $this->populateEmoji();
     }
 
     public function tearDown()
@@ -164,7 +166,86 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         return $jwt;
     }
 
-    public function testuserLogin()
+    public function populateUser()
+    {
+        User::create([
+            'fullname'   => 'John Test',
+            'username'   => 'test',
+            'password'   => 'test', 
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
+
+        User::create([
+            'fullname'   => 'paul Test',
+            'username'   => 'tester',
+            'password'   => 'test', 
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
+    }
+
+    public function populateEmoji()
+    {
+        Emoji::create([
+            'name'       => 'grin to the bone',
+            'chars'      => 'u-1989',
+            'category'   => 'category A',
+            'keywords'   => 'sad, happy',
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+            'created_by' => 'test',
+        ]);
+    }
+
+    public function testCreateUser()
+    {
+        $env = Environment::mock([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI'    => '/auth/register',
+            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
+        ]);
+
+        $body = [
+            'fullname' => 'Gait tests',
+            'username' => 'gladys',
+            'password' => 'tets',
+        ];
+
+        $req = Request::createFromEnvironment($env)->withParsedBody($body);
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $result = json_decode($response->getBody(), true);
+        $this->assertEquals($result['message'], 'User successfully created.');
+        $this->assertSame($response->getStatusCode(), 201);
+    }
+
+
+    public function testInCorrectUserLogin()
+    {
+        $env = Environment::mock([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI'    => '/auth/login',
+            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
+            'PATH_INFO'      => '/auth',
+        ]);
+        $req = Request::createFromEnvironment($env);
+        $req = $req->withParsedBody([
+            'username' => 'tester',
+            'password' => 'xxxx',
+        ]);
+        $req = $req->withAttribute('issTime', 1440295673);
+
+        $userData = $req->getParsedBody();
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $result = json_decode($response->getBody(), true);
+        $data = ['message' => 'Username or Password field not valid.'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 400);
+    }
+
+    public function testuserLoginIncorrectfield()
     {
         $env = Environment::mock([
             'REQUEST_METHOD' => 'POST',
@@ -175,17 +256,22 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'username' => 'gladys',
-            'password' => 'tets',
+            'username'   => 'gladys',
+            'password'   => 'tets',
+            'wrongfield' => 'wrong',
         ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
-        $this->assertSame($response->getStatusCode(), 200);
+        $result = json_decode($response->getBody(), true);
+        $data = ['message' => 'Unwanted fields must be removed'];
+        $this->assertEquals($data, $result);
+        $this->assertSame($response->getStatusCode(), 400);
     }
 
     public function testPostEmoji()
     {
+        //$this->populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username, 1440295673);
 
@@ -202,26 +288,18 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'category'   => 'Category B',
             'keywords'   => 'sad',
         ]);
-
-        Emoji::create([
-            'name'       => 'name',
-            'chars'      => 'chars',
-            'category'   => 'category',
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-            'created_by' => $user->username,
-        ]);
         
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
         $result = json_decode($response->getBody(), true);
-        //$data = ['message' => 'Emoji has been created successfully'];
-        //$this->assertEquals($data, $result);
+        $data = ['message' => 'Emoji has been created successfully'];
+        $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 201);
     }
 
     public function testPostEmojiALreadyExit()
     {
+        //$this->populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username, 1440295673);
 
@@ -233,19 +311,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
-            'name'       => 'babal',
-            'chars'      => 'u70m7',
+            'name'       => 'grin to the bone',
+            'chars'      => 'u-1989',
             'category'   => 'Category B',
             'keywords'   => 'sad',
-        ]);
-
-        Emoji::create([
-            'name'       => 'name',
-            'chars'      => 'chars',
-            'category'   => 'category',
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-            'created_by' => $user->username,
         ]);
         
         $this->app->getContainer()['request'] = $req;
