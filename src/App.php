@@ -22,8 +22,8 @@ class App
      */
     public function __construct($path = null)
     {
-        $settings = require  __DIR__.'/settings.php';
-        $app = new App($settings);
+        //$settings = require  __DIR__.'/settings.php';
+        //$app = new App($settings);
         // Set up dependencies
         require  __DIR__.'/dependencies.php';
         // Register routes

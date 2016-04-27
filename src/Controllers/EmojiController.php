@@ -107,41 +107,40 @@ class EmojiController
      *
      * @return json response
      */
-    public function CreateEmoji($request, $response, $requestParams)
-    {
-        //dd('I love this');
-        $requestParams    = $request->getParsedBody();
-        $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
+    // public function CreateEmoji($request, $response, $requestParams)
+    // {
+    //     $requestParams    = $request->getParsedBody();
+    //     $validateUserData = $this->authController->validateUserData(['name', 'chars', 'category', 'keywords'], $requestParams);
 
-        if (is_array($validateUserData)) {
-            return $response->withJson($validateUserData, 400);
-        }
+    //     if (is_array($validateUserData)) {
+    //         return $response->withJson($validateUserData, 400);
+    //     }
         
-        $validateEmptyInput = $this->checkEmptyInput($requestParams['name'], $requestParams['chars'], $requestParams['category'], $requestParams['keywords']);
+    //     $validateEmptyInput = $this->checkEmptyInput($requestParams['name'], $requestParams['chars'], $requestParams['category'], $requestParams['keywords']);
 
-        if (is_array($validateEmptyInput)) {
-            return $response->withJson($validateEmptyInput, 401);
-        }
+    //     if (is_array($validateEmptyInput)) {
+    //         return $response->withJson($validateEmptyInput, 401);
+    //     }
 
-        $validateEmojiDuplicate = $this->checkDuplicateEmoji($requestParams['name'], $requestParams['chars']);
+    //     $validateEmojiDuplicate = $this->checkDuplicateEmoji($requestParams['name'], $requestParams['chars']);
 
-        if (is_array($validateEmojiDuplicate)) {
-            return $response->withJson($validateEmojiDuplicate, 400);
-        }
+    //     if (is_array($validateEmojiDuplicate)) {
+    //         return $response->withJson($validateEmojiDuplicate, 400);
+    //     }
     
-        $emoji = Emoji::create([
-            'name'       => strtolower($requestParams['name']),
-            'chars'      => $requestParams['chars'],
-            'category'   => $requestParams['category'],
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-            'created_by' => $this->getUsername($request, $response),
-        ]);
+    //     $emoji = Emoji::create([
+    //         'name'       => strtolower($requestParams['name']),
+    //         'chars'      => $requestParams['chars'],
+    //         'category'   => $requestParams['category'],
+    //         'created_at' => Carbon::now()->toDateTimeString(),
+    //         'updated_at' => Carbon::now()->toDateTimeString(),
+    //         'created_by' => $this->getUsername($request, $response),
+    //     ]);
 
-        $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
+    //     $this->createEmojiKeywords($emoji->id, $requestParams['keywords']);
     
-        return $response->withJson(['message' => 'Emoji has been created successfully'], 201);
-    }
+    //     return $response->withJson(['message' => 'Emoji has been created successfully'], 201);
+    // }
 
     /**
      * This method updates an emoji by using Patch.
@@ -152,26 +151,26 @@ class EmojiController
      *
      * @return json $response
      */
-    public function updateEmojiByPatch($request, $response, $args)
-    {
-        $updateParams     = $request->getParsedBody();
-        $validateUserData = $this->authController->validateUserData(['name'], $updateParams);
+    // public function updateEmojiByPatch($request, $response, $args)
+    // {
+    //     $updateParams     = $request->getParsedBody();
+    //     $validateUserData = $this->authController->validateUserData(['name'], $updateParams);
        
-        if (is_array($validateUserData)) {
-            return $response->withJson($validateUserData, 400);
-        }
+    //     if (is_array($validateUserData)) {
+    //         return $response->withJson($validateUserData, 400);
+    //     }
 
-        $validateArgs = $this->validateArgs($request, $response, $args);
+    //     $validateArgs = $this->validateArgs($request, $response, $args);
 
-        if (is_array($validateArgs)) {
-            return $response->withJson($validateArgs, 401);
-        }
+    //     if (is_array($validateArgs)) {
+    //         return $response->withJson($validateArgs, 401);
+    //     }
 
-        Emoji::where('id', '=', $args['id'])
-            ->update(['name' => strtolower($updateParams['name']), 'updated_at' => Carbon::now()->toDateTimeString()]);
+    //     Emoji::where('id', '=', $args['id'])
+    //         ->update(['name' => strtolower($updateParams['name']), 'updated_at' => Carbon::now()->toDateTimeString()]);
 
-        return $response->withJson(['message' => 'Emoji has been updated successfully'], 200);
-    }
+    //     return $response->withJson(['message' => 'Emoji has been updated successfully'], 200);
+    // }
 
     /**
      * This method updates an emoji by using put.
