@@ -31,6 +31,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
     protected $user;
     protected $envRootPath;
 
+    /*
+     * This function setup is used to initialize all needed classes
+     */
     public function setUp()
     {       
         $this->root       = vfsStream::setup('home');
@@ -73,6 +76,14 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->schema->down();
     }
 
+    /**
+     * This method mock request for the response.
+     *
+     * @param  $path
+     * @param  $options
+     *
+     * @return $request
+     */
     public function request($method, $path, $options = [])
     {
         // Prepare a mock environment
@@ -87,6 +98,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->app->getContainer()['request'] = $req;
         $this->response = $this->app->run(true);
     }
+
     /**
      * This method defines a get request for all emojis endpoint.
      *
@@ -137,11 +149,17 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('200', $this->response->getStatusCode());
     }
 
+    /*
+     * This function test for warning suppressor
+     */
     public function testPHPUnitWarningSuppressor()
     {
         $this->assertTrue(true);
     }
 
+    /*
+     * This function generate token for users
+     */
     private function generateToken($username, $time = null)
     {
         $time = $time === null ? (time() - 10) : $time;
@@ -157,6 +175,7 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'exp'  => 1481307683,
             'data' => ['username' => $username],
         ];
+
         $jwt = JWT::encode(
             $JWTToken,     //Data to be encoded in the JWT
             $secretKey,   // The signing key
@@ -166,6 +185,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         return $jwt;
     }
 
+    /*
+     * This function poulate the users table in the database
+     */
     public function populateUser()
     {
         User::create([
@@ -185,6 +207,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
     }
 
+    /*
+     * This function poulate the emoji table in the database
+     */
     public function populateEmoji()
     {
         Emoji::create([
@@ -198,6 +223,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
     }
 
+    /*
+     * This function test for user registration
+     */
     public function testCreateUser()
     {
         $env = Environment::mock([
@@ -220,7 +248,60 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 201);
     }
 
+    /*
+     * This function test for user registration with right input
+     */
+    public function testCreateUserWithoutEmptyInput()
+    {
+        $env = Environment::mock([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI'    => '/auth/register',
+            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
+        ]);
 
+        $body = [
+            'fullname' => 'Gait tests',
+            'username' => 'gladys',
+            'password' => '',
+        ];
+
+        $req = Request::createFromEnvironment($env)->withParsedBody($body);
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $result = json_decode($response->getBody(), true);
+        $this->assertEquals($result['message'], 'All fields must be provided.');
+        $this->assertSame($response->getStatusCode(), 401);
+    }
+
+    /*
+     * This function test for user registration with incorrect field
+     */
+    public function testCreateUserWithIncorrectfield()
+    {
+        $env = Environment::mock([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI'    => '/auth/register',
+            'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
+        ]);
+
+        $body = [
+            'fullname'   => 'Gait tests',
+            'username'   => 'gladys',
+            'password'   => 'tets',
+            'wrongfield' => 'wrong',
+        ];
+
+        $req = Request::createFromEnvironment($env)->withParsedBody($body);
+        $this->app->getContainer()['request'] = $req;
+        $response = $this->app->run(true);
+        $result = json_decode($response->getBody(), true);
+        $this->assertEquals($result['message'], 'Unwanted fields must be removed');
+        $this->assertSame($response->getStatusCode(), 400);
+    }
+
+    /*
+     * This function test for user incorrect login details
+     */
     public function testInCorrectUserLogin()
     {
         $env = Environment::mock([
@@ -229,13 +310,14 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'CONTENT_TYPE'   => 'application/x-www-form-urlencoded',
             'PATH_INFO'      => '/auth',
         ]);
+
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
             'username' => 'tester',
             'password' => 'xxxx',
         ]);
-        $req = $req->withAttribute('issTime', 1440295673);
 
+        $req = $req->withAttribute('issTime', 1440295673);
         $userData = $req->getParsedBody();
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -245,6 +327,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 400);
     }
 
+    /*
+     * This function test for user unwanted field
+     */
     public function testuserLoginIncorrectfield()
     {
         $env = Environment::mock([
@@ -269,9 +354,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 400);
     }
 
+    /*
+     * This function test for emoji creation
+     */
     public function testPostEmoji()
     {
-        //$this->populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username, 1440295673);
 
@@ -297,9 +384,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 201);
     }
 
+    /*
+     * This function test for user emoji already exist in the database
+     */
     public function testPostEmojiALreadyExit()
     {
-        //$this->populateUser();
         $user = User::find(1);
         $token = $this->generateToken($user->username, 1440295673);
 
@@ -325,6 +414,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 400);
     }
 
+    /*
+     * This function test for incomplete field during emoji creation
+     */
     public function testPostEmojiWithIncompleteField()
     {
         $user = User::find(1);
@@ -335,8 +427,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'REQUEST_URI'        => '/emojis',
             'HTTP_AUTHORIZATION' => $token,
         ]);
-
-         
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
@@ -363,6 +453,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for emoji creation with wrong field
+     */
     public function testPostEmojiWithWrongField()
     {
         $user = User::find(1);
@@ -373,8 +466,6 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'REQUEST_URI'        => '/emojis',
             'HTTP_AUTHORIZATION' => $token,
         ]);
-
-         
 
         $req = Request::createFromEnvironment($env);
         $req = $req->withParsedBody([
@@ -402,6 +493,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 400);
     }
 
+    /*
+     * This function test for retieving all emojis
+     */
     public function testgetAllEmojis()
     {  
         $env = Environment::mock([
@@ -414,10 +508,12 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $req = Request::createFromEnvironment($env);
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
-        $data = json_decode($response->getBody(), true);
         $this->assertSame($response->getStatusCode(), 200);
     }
 
+    /*
+     * This function test for retieving single emoji
+     */
     public function testGetSingleEmoji()
     {
         $env = Environment::mock([
@@ -434,6 +530,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 200);
     }
 
+    /*
+     * This function test for retrieving single emoji does not exist
+     */
     public function testGetSingleEmojiNotExist()
     {
         $env = Environment::mock([
@@ -452,6 +551,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 404);
     }
 
+    /*
+     * This function test for invalid argumement from user
+     */
     public function testThatArgIsANum()
     {
         $env = Environment::mock([
@@ -470,6 +572,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for editing emoji with put with field
+     */
     public function testEditEmojiWithPutWithWrongFields()
     {
         $user = User::find(1);
@@ -483,13 +588,12 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-            [
-                'name'       => 'KISSING FACE',
-                'chars'      => '/u{1F603}',
-                'category'   => 'Category A',
-                'keywords'   => 'sad'
-            ]);
+        $req = $req->withParsedBody(     [
+            'name'       => 'KISSING FACE',
+            'chars'      => '/u{1F603}',
+            'category'   => 'Category A',
+            'keywords'   => 'sad'
+        ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -499,6 +603,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 400);
     }
 
+    /*
+     * This function test for editing emoji with put by different creator
+     */
     public function testEditEmojiWithPutByDiffCreator()
     {
         $user = User::find(1);
@@ -512,12 +619,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-            [
-                'name'       => 'KISSING FACE',
-                'chars'       => '/u{1F603}',
-                'category'   => 'Category A',
-            ]);
+        $req = $req->withParsedBody([
+            'name'       => 'KISSING FACE',
+            'chars'       => '/u{1F603}',
+            'category'   => 'Category A',
+        ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -527,6 +633,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for editing emoji with put with invalid id
+     */
     public function testEditEmojiWithPutWithInvalidID()
     {
         $user = User::find(1);
@@ -540,12 +649,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-            [
-                'name'       => 'KISSING FACE',
-                'chars'       => '/u{1F603}',
-                'category'   => 'category D',
-            ]);
+        $req = $req->withParsedBody([
+            'name'       => 'KISSING FACE',
+            'chars'       => '/u{1F603}',
+            'category'   => 'category D',
+        ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -555,6 +663,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for editing emoji partially with wrong field
+     */
     public function testEditEmojiPartiallyWithWrongFields()
     {
         $user = User::find(1);
@@ -568,11 +679,10 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-            [
-                'name'     => 'WINKING FACE',
-                'category' => 'category A',
-            ]);
+        $req = $req->withParsedBody([
+            'name'     => 'WINKING FACE',
+            'category' => 'category A',
+        ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -582,6 +692,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 400);
     }
 
+    /*
+     * This function test for editing partially by different craetor
+     */
     public function testEditEmojiPartiallByDiffCreator()
     {
         $user = User::find(1);
@@ -595,10 +708,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-            [
-                'name'       => 'KISSING FACE',
-            ]);
+        $req = $req->withParsedBody([
+            'name'       => 'KISSING FACE',
+        ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -608,6 +720,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for editing emoji partially with invalid id
+     */
     public function testEditEmojiPartiallyWithInvalidID()
     {
         $user = User::find(1);
@@ -621,10 +736,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-            [
-                'name'       => 'WINKING FACE',
-            ]);
+        $req = $req->withParsedBody([
+            'name'       => 'WINKING FACE',
+        ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -634,6 +748,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for editing emoji partially with invalid id
+     */
     public function testEditEmojiPartiallyWithStringId()
     {
         $user = User::find(1);
@@ -647,10 +764,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-            [
-                'name'       => 'WINKING FACE',
-            ]);
+        $req = $req->withParsedBody([
+            'name'       => 'WINKING FACE',
+        ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -660,6 +776,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for editing emoji with put with invalid id
+     */
     public function testEditEmojiWithPutWithStringID()
     {
         $user = User::find(1);
@@ -673,12 +792,11 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-        $req = $req->withParsedBody(
-            [
-                'name'       => 'KISSING FACE',
-                'chars'       => '/u{1F603}',
-                'category'   => 'category D',
-            ]);
+        $req = $req->withParsedBody([
+            'name'       => 'KISSING FACE',
+            'chars'       => '/u{1F603}',
+            'category'   => 'category D',
+        ]);
 
         $this->app->getContainer()['request'] = $req;
         $response = $this->app->run(true);
@@ -688,6 +806,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for deleting emoji by different creator
+     */
     public function testDeleteEmojiWithDiffCreator()
     {
         $user = User::find(1);
@@ -709,6 +830,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for deleting emoji with invalid id
+     */
     public function testDeleteEmojiWithStringId()
     {
         $user = User::find(1);
@@ -730,6 +854,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test for deleting emoji with invalid id
+     */
     public function testDeleteEmojiWithInvalidId()
     {
         $user = User::find(1);
@@ -751,6 +878,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test user logout with correct token
+     */
     public function testuserLogoutWithToken()
     {
         $env = Environment::mock([
@@ -769,6 +899,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($response->getStatusCode(), 401);
     }
 
+    /*
+     * This function test user logout successfully
+     */
     public function testuserLogoutSuccessfully()
     {
         $user = User::find(1);
@@ -781,19 +914,17 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         ]);
 
         $req = Request::createFromEnvironment($env);
-    
         $this->app->getContainer()['request'] = $req;
-    
         $response = $this->app->run(true);
-
-        //var_export($response);
         $data = json_decode($response->getBody(), true);
         $result = ['message' => 'Logout successful'];
-    
         $this->assertEquals($data, $result);
         $this->assertSame($response->getStatusCode(), 200);
     }
     
+    /*
+     * This function test user logout without correct token
+     */
     public function testuserLogoutWithoutToken()
     {
         $env = Environment::mock([
@@ -809,7 +940,5 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
         $data = json_decode($response->getBody(), true);
         $this->assertSame($response->getStatusCode(), 401);
     }
-
-    
 }
     
