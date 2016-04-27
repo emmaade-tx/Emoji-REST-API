@@ -24,18 +24,19 @@ class AuthMiddleware
     {
        $authHeader = $request->getHeader('HTTP_AUTHORIZATION');
 
-        
-           if (!empty($authHeader)) {
+            try {
+                if (!empty($authHeader)) {
                 $appSecret    = getenv('APP_SECRET');
                 $jwt          = $authHeader[0];   
                 $decodedToken = JWT::decode($jwt, $appSecret, ['HS512']);
                 
                 return $next($request, $response);
+                }
+
+            } catch (Exception $e) {
+                return $next($request, $response);
+                //return $response->withJson(['status: Token invalid or Expired'], 500);
             }
-        } catch (Exception $e) {
-            return $next($request, $response);
-            //return $response->withJson(['status: Token invalid or Expired'], 500);
-        }
        
         return $response->withJson(['message' => 'User unauthorized due to empty token'], 401);
    }
