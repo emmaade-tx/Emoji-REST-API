@@ -41,9 +41,9 @@ class EmojiEndpointsTest extends PHPUnit_Framework_TestCase
             'JWT_ALGORITHM = HS512',
             '[Database]',
             'driver=mysql',
-            'host=localhost:33060',
-            'username=homestead',
-            'password=secret',
+            'host=localhost',
+            'username=root',
+            'password=',
             'charset=utf8',
             'collation=utf8_unicode_ci',
             'database=naijaEmoji'
